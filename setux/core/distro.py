@@ -1,6 +1,6 @@
 from pybrary.func import memo
 
-from setux.main.logger import debug
+from . import debug
 
 
 # pylint: disable=bad-staticmethod-argument

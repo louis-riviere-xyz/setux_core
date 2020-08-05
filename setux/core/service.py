@@ -2,8 +2,8 @@ from time import sleep
 
 from pybrary.func import todo
 
-from setux.main.logger import info
-from setux.core.manage import Manager
+from . import info
+from .manage import Manager
 
 
 # pylint: disable=assignment-from-no-return

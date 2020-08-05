@@ -1,4 +1,4 @@
-from setux.main.logger import info
+from . import info
 
 
 # pylint: disable=no-member

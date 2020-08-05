@@ -13,7 +13,7 @@ from .errors import (
     ModuleTypeError,
     UnsupportedDistroError,
 )
-from setux.main.logger import debug, info, error
+from . import debug, info, error
 
 from .module import Module
 from .distro import Distro

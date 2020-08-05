@@ -13,7 +13,7 @@ setup(
     description      = 'System deployment',
     long_description = readme,
     keywords         = ['utility', ],
-    url              = 'https://framagit.org/louis-riviere-xyz/setux/tree/stable',
+    url              = 'https://github.com/louis-riviere-xyz/setux_core',
     author           = 'Louis RIVIERE',
     author_email     = 'louis@riviere.xyz',
     license          = 'MIT',
