@@ -1,9 +1,9 @@
 from logging import getLogger
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 
-logger = getLogger('setux_core')
+logger = getLogger('setux')
 
 debug = logger.debug
 info = logger.info

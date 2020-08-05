@@ -14,11 +14,13 @@ from .errors import (
     UnsupportedDistroError,
 )
 from . import debug, info, error
-
-from .module import Module
 from .distro import Distro
 from .manage import Manager
+from .module import Module
 from . import plugins
+import setux.distros
+import setux.managers.common
+import setux.modules
 
 
 # pylint: disable= filter-builtin-not-iterating
@@ -37,14 +39,14 @@ class Target:
         self.sudo = sudo
         self.chk_cnx()
         self.distros = plugins.Distros(self,
-            Distro, 'setux.distros'
+            Distro, setux.distros
         )
         self.managers = plugins.Managers(self,
-            Manager, 'setux.managers.common'
+            Manager, setux.managers.common
         )
         self.probe_distro()
         self.modules = plugins.Modules(self,
-            Module, 'setux.modules'
+            Module, setux.modules
         )
         self.sudo = self.distro.Login.id != 0
         self.exclude = exclude
