@@ -9,7 +9,6 @@ from pybrary.func import todo
 
 from .errors import (
     MissingModuleError,
-    AmbiguousModuleNameError,
     ModuleTypeError,
     UnsupportedDistroError,
 )
@@ -195,23 +194,10 @@ class Target:
 
     def deploy(self, module, **kw):
         if isinstance(module, str):
-            if module.startswith('.'):
-                found = [
-                    name
-                    for name in self.modules.items.keys()
-                    if name.endswith(module)
-                ]
-                if len(found)==1:
-                    cls = self.modules.items[found[0]]
-                elif len(found)==0:
-                    raise MissingModuleError(module, self.distro)
-                else:
-                    raise AmbiguousModuleNameError(module, found)
-            else:
-                try:
-                    cls = self.modules.items[module]
-                except KeyError:
-                    raise MissingModuleError(module, self.distro)
+            try:
+                cls = self.modules.items[module]
+            except KeyError:
+                raise MissingModuleError(module, self.distro)
         else:
             cls = module
 

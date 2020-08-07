@@ -8,6 +8,7 @@ from .distro import Distro
 
 def get_modules(ns):
     path, name = ns.__path__, ns.__name__ + '.'
+    debug(f'{path} {name}')
     for finder, name, _ispkg in iter_modules(path, name):
         yield name, import_module(name)
 
@@ -79,12 +80,13 @@ class Modules(Plugins):
     def parse(self, mod, plg, plugin):
         lineage = self.target.distro.lineage
         if plg in lineage:
+            name = '.'.join(mod.split('.')[2:])
             old = self.items.get(mod)
             if old:
                 idx = lineage.index(plg)
                 old_idx = lineage.index(old.__name__)
                 if idx > old_idx:
-                    return mod, plugin
+                    return name, plugin
             else:
-                return mod, plugin
+                return name, plugin
         return None, None

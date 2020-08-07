@@ -1,6 +1,6 @@
 from logging import getLogger
 
-__version__ = '0.0.2'
+__version__ = '0.1.0'
 
 
 logger = getLogger('setux')

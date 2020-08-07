@@ -15,14 +15,6 @@ class MissingModuleError(SetuxError):
         )
 
 
-class AmbiguousModuleNameError(SetuxError):
-    def __init__(self, module, found):
-        found = '\n        '.join(found)
-        super().__init__(
-            f'\n    "{module}" modules :\n        {found}\n   '
-        )
-
-
 class ModuleTypeError(SetuxError):
     def __init__(self, module):
         super().__init__(
