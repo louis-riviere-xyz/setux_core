@@ -233,6 +233,8 @@ class Target:
 
     def script(self, content, path=None, name=None, remove=True, report='quiet'):
         path = path or '/tmp/setux'
+        self.run(f'mkdir -p {path}')
+        self.run(f'chmod 777 {path}')
         name = name or 'script'
         full = '/'.join((path, name))
         self.write(full, content, report='quiet')
@@ -242,7 +244,7 @@ class Target:
         return ret, out, err
 
     def read(self, path, mode='rt', report='normal'): todo(self)
-    def write(self, path, content, mode='rt', report='normal'): todo(self)
+    def write(self, path, content, mode='wt', report='normal'): todo(self)
     def send(self, local, remote): todo(self)
     def fetch(self, remote, local): todo(self)
     def sync(self, src, dst=None): todo(self)

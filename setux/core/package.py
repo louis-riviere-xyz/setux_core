@@ -10,7 +10,7 @@ class Packager(Manager):
     def __init__(self, distro):
         super().__init__(distro)
         self.host = distro.Host.name
-        self.pkgmap = distro.pkgmap
+        self.pkgmap = distro.pkgmaps
         self.done = set()
         self.ready = False
 
@@ -37,7 +37,9 @@ class Packager(Manager):
 
     def bigs(self):
         info('\tbigs')
-        yield from self.do_bigs()
+        for line in self.do_bigs():
+            size, pkg = line.split()
+            yield f'{size:>9} {pkg}'
 
     def upgradable(self):
         info('\tupgradable')

@@ -60,14 +60,35 @@ class Distro:
         except: return False
 
     @staticmethod
-    def distro_lineage(cls):
+    def distro_bases(cls):
         return list(reversed([
-            base.__name__
+            base
             for base in cls.__mro__
             if issubclass(cls, Distro)
         ]))[1:]
 
     @memo
-    def lineage(self):
-        return Distro.distro_lineage(self.__class__)
+    def bases(self):
+        return Distro.distro_bases(self.__class__)
 
+    @staticmethod
+    def distro_lineage(cls):
+        return [b.__name__ for b in Distro.distro_bases(cls)]
+
+    @memo
+    def lineage(self):
+        return [b.__name__ for b in self.bases]
+
+    @memo
+    def pkgmaps(self):
+        pkgs = dict()
+        for distro in self.bases:
+            pkgs.update(distro.pkgmap)
+        return pkgs
+
+    @memo
+    def svcmaps(self):
+        svcs = dict()
+        for distro in self.bases:
+            svcs.update(distro.svcmap)
+        return svcs
