@@ -58,6 +58,7 @@ class Target:
     def outdir(self, path):
         self._outdir_ = path
         if path:
+            run(f'mkdir -p {path}', shell=True)
             self.set_trace()
 
     def chk_cnx(self):
