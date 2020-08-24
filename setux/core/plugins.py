@@ -52,7 +52,7 @@ class Plugins:
         for mod, plg, plugin in plugins:
             key, val = self.parse(mod, plg, plugin)
             if key and val:
-                debug(f'{val.__module__}.{val.__name__} collected')
+                debug(f'{val.__module__}.{val.__name__} registered')
                 self.items[key] = val
         self.sort()
 

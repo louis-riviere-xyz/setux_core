@@ -20,6 +20,9 @@ class Module:
     def __init__(self, distro):
         self.distro = distro
 
+    def __getattr__(self, attr):
+        return getattr(self.distro.target, attr)
+
     def deploy(self, target, **kw):
         for mod in (
             c
