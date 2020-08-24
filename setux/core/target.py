@@ -62,14 +62,8 @@ class Target:
             self.set_trace()
 
     def chk_cnx(self):
-        ret, out, err = self.run('uname', report='quiet')
-        if ret != 0:
-            key = f'-i {self.priv} ' if self.priv else ''
-            msg = [
-                f' {self.name} ! connection error !',
-                f'ssh {key}{self.user}@{self.host}\n',
-            ]
-            raise Exception('\n'.join(msg))
+        ''' to be overwriten
+        '''
 
     def probe_distro(self):
         Distros = self.distros.items.values()
@@ -215,6 +209,10 @@ class Target:
         info(f'\tdeploy {module} {params} {status}')
         return ret
 
+    def rsync_opt(self):
+        ''' additional rsync opts
+        '''
+
     def rsync(self, *arg, **kw):
         self.Package.install('rsync')
         kw['sudo'] = False
@@ -222,10 +220,9 @@ class Target:
         cmd = 'rsync -qcr -zz --delete'.split()
         if self.exclude:
             cmd.extend(['--exclude-from', self.exclude, '--delete-excluded'])
-        if self.priv:
-            cmd.append(f'-e "ssh -i {self.priv}"')
-        else:
-            cmd.append(f'-e ssh')
+        opt = self.rsync_opt()
+        if opt:
+            cmd.append(opt)
         cmd.extend(arg)
         kw['report'] = 'verbose'
         ret, out, err =  Target.run(self, *cmd, **kw)
