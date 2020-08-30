@@ -1,4 +1,6 @@
-from inspect import cleandoc
+from inspect import cleandoc, getsource
+from ast import parse, walk, Call
+from textwrap import dedent
 
 from pybrary.func import todo
 
@@ -41,6 +43,23 @@ class Module:
         '''to be overridden
         '''
         return True
+
+    @property
+    def submodules(self):
+        subs = list()
+        modules = set(self.modules.items.keys())
+        for meth in (self.deploy, self.do_deploy):
+            tree = parse(dedent(getsource(meth)))
+            for node in walk(tree):
+                if isinstance(node, Call):
+                    try:
+                        f = node.func.attr
+                        if f in ('deploy', 'do_deploy'):
+                            m = node.args[0].s
+                            if m in modules:
+                                subs.append(m)
+                    except: pass
+        return subs
 
     def install(self, target, *, dep=None, pre=None, pkg=None, pip=None):
         inst(target.Package.install, pre)
