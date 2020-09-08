@@ -4,13 +4,9 @@ from . import info
 from .manage import Manager
 
 
-class Packager(Manager):
-    system = True
-
+class _Packager(Manager):
     def __init__(self, distro):
         super().__init__(distro)
-        self.host = distro.Host.name
-        self.pkgmap = distro.pkgmaps
         self.done = set()
         self.ready = False
 
@@ -28,9 +24,10 @@ class Packager(Manager):
             yield from self.do_installed()
 
     def available(self, pattern=None):
+        self._get_ready_()
         if pattern:
             for name, ver in self.do_available():
-                if pattern in name:
+                if pattern in name.lower():
                     yield name, ver
         else:
             yield from self.do_available()
@@ -82,4 +79,14 @@ class Packager(Manager):
     def do_cleanup(self): todo(self)
     def do_installed(self): todo(self)
     def do_available(self): todo(self)
+
+
+class SystemPackager(_Packager):
+    def __init__(self, distro):
+        super().__init__(distro)
+        self.pkgmap = distro.pkgmaps
+
+
+class CommonPackager(_Packager):
+    pkgmap = dict()
 

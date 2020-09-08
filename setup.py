@@ -31,7 +31,7 @@ setup(
         'Topic :: Utilities',
     ],
     install_requires = [
-        'pybrary>=0.20.37.0',
+        'pybrary>=0.20.37.1',
     ],
     packages = find_namespace_packages(
         include=['setux.*']

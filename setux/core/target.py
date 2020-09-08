@@ -36,19 +36,23 @@ class Target:
         self.name = name or 'target'
         self.outdir = outdir
         self.sudo = sudo
-        self.chk_cnx()
-        self.distros = plugins.Distros(self,
-            Distro, setux.distros
-        )
-        self.managers = plugins.Managers(self,
-            Manager, setux.managers.common
-        )
-        self.probe_distro()
-        self.modules = plugins.Modules(self,
-            Module, setux.modules
-        )
-        self.sudo = self.distro.Login.id != 0
-        self.exclude = exclude
+
+        self.cnx = self.chk_cnx()
+        if self.cnx:
+            self.distros = plugins.Distros(self,
+                Distro, setux.distros
+            )
+            self.managers = plugins.Managers(self,
+                Manager, setux.managers.common
+            )
+            self.probe_distro()
+            self.modules = plugins.Modules(self,
+                Module, setux.modules
+            )
+            self.sudo = self.distro.Login.id != 0
+            self.exclude = exclude
+        else:
+            self.distro = None
 
     @property
     def outdir(self):
@@ -188,6 +192,10 @@ class Target:
             raise
 
     def deploy(self, module, **kw):
+        if not self.cnx:
+            error('deploy ! no cnx')
+            return
+
         if isinstance(module, str):
             try:
                 cls = self.modules.items[module]

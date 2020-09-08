@@ -1,11 +1,10 @@
 from importlib import import_module
 from pkgutil import iter_modules
 from functools import lru_cache
-from importlib.util import spec_from_file_location
-from importlib.util import module_from_spec
 
 from pybrary.func import fqn
 from pybrary.files import find
+from pybrary.modules import load
 
 from . import debug, error
 import setux.core
@@ -17,26 +16,25 @@ def get_modules(ns):
     debug(f'{ns.__name__}')
     path, name = ns.__path__, ns.__name__ + '.'
     try:
-        # namespace
-        found = list()
-        for pth in path._path:
-            debug(f'    {pth}')
-            for fil in find(pth, r'\.py$'):
-                if fil.name=='__init__.py':
-                    error(f' ! __init__ in ns {pth}')
-                    break
-                nam = name+fil.stem
-                spec = spec_from_file_location(nam, fil)
-                mod = module_from_spec(spec)
-                spec.loader.exec_module(mod)
-                found.append((nam, mod))
-        return found
+        if hasattr(path, '_path'):                   # namespace
+            found = list()
+            for pth in path._path:
+                debug(f'    {pth}')
+                for fil in find(pth, r'\.py$'):
+                    if fil.name=='__init__.py':
+                        error(f' ! __init__ in ns {pth}')
+                        return
+                    nam = name+fil.stem
+                    mod = load(nam, fil)
+                    found.append((nam, mod))
+            return found
+        else:                                        # package
+            return [
+                (name, import_module(name))
+                for finder, name, _ispkg in iter_modules(path, name)
+            ]
     except Exception as x:
-        # package
-        return [
-            (name, import_module(name))
-            for finder, name, _ispkg in iter_modules(path, name)
-        ]
+        error(f'{name} ! {x}')
 
 
 def get_raw_plugins(ns, cls):

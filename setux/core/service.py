@@ -12,7 +12,6 @@ from .manage import Manager
 class Service(Manager):
     def __init__(self, distro):
         super().__init__(distro)
-        self.host = distro.Host.name
         self.svcmap = distro.svcmap
 
     def status(self, name):
