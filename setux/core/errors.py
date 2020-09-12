@@ -27,3 +27,14 @@ class UnsupportedDistroError(SetuxError):
         super().__init__(
             f'Unsupported distro on {target}'
         )
+
+
+class ExecError(SetuxError):
+    def __init__(self, cmd, ret, out, err):
+        sep = '\n    > '
+        out = sep+sep.join(out) if out else ''
+        sep = '\n    X '
+        err = sep+sep.join(err) if err else ''
+        super().__init__(
+            f'{cmd} ! {ret} ! {out} {err}'
+        )

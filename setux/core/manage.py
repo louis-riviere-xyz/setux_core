@@ -12,7 +12,8 @@ class Manager:
         self.key = None
 
     def __str__(self):
-        return f'{self.__class__.__name__} {self.key}'
+        base = self.__class__.__bases__[0].__name__
+        return f'{base}.{self.manager}'
 
 
 class Deployable(Manager):

@@ -11,15 +11,13 @@ from .errors import (
     MissingModuleError,
     ModuleTypeError,
     UnsupportedDistroError,
+    ExecError,
 )
 from . import debug, info, error
 from .distro import Distro
-from .manage import Manager
 from .module import Module
 from . import plugins
 import setux.distros
-import setux.managers.common
-import setux.modules
 
 
 # pylint: disable= filter-builtin-not-iterating
@@ -42,14 +40,8 @@ class Target:
             self.distros = plugins.Distros(self,
                 Distro, setux.distros
             )
-            self.managers = plugins.Managers(self,
-                Manager, setux.managers.common
-            )
             self.probe_distro()
-            self.modules = plugins.Modules(self,
-                Module, setux.modules
-            )
-            self.sudo = self.distro.Login.id != 0
+            self.sudo = self.distro.login.id != 0
             self.exclude = exclude
         else:
             self.distro = None
@@ -75,7 +67,7 @@ class Target:
         for Dist in Distros:
             if Dist.release_check(self, infos):
                 self.distro = Dist(self)
-                debug(f'{self.distro.Host.name} : {self.distro.name}')
+                debug(f'{self.distro.host.name} : {self.distro.name}')
                 break
         else:
             raise UnsupportedDistroError(self)
@@ -198,7 +190,7 @@ class Target:
 
         if isinstance(module, str):
             try:
-                cls = self.modules.items[module]
+                cls = self.distro.modules.items[module]
             except KeyError:
                 raise MissingModuleError(module, self.distro)
         else:

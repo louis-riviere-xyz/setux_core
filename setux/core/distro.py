@@ -1,6 +1,11 @@
 from pybrary.func import memo
 
 from . import debug
+from .manage import Manager
+from .module import Module
+from . import plugins
+import setux.managers
+import setux.modules
 
 
 # pylint: disable=bad-staticmethod-argument
@@ -15,24 +20,37 @@ class Distro:
     def __init__(self, target):
         self.name = self.__class__.__name__
         self.target = target
+        self.managers = plugins.Managers(self,
+            Manager, setux.managers
+        )
+        self.modules = plugins.Modules(self,
+            Module, setux.modules
+        )
         self.set_managers()
-        self.Package = self.Package(self)
-        self.Service = self.Service(self)
 
     def __str__(self):
         return f'Distro : {self.name}'
 
     def set_managers(self):
-        todo = list(self.target.managers.items.values())
+        todo = list(self.managers.items.values())
         while todo:
             for manager in list(todo):
                 todo.remove(manager)
-                try:
-                    setattr(self, manager.__name__, manager(self))
-                    debug('%s %s %s', self.name, manager.__name__, '.')
+                # try:
+                if manager.manager==self.Package:
+                    self.Package = manager(self)
+                    debug('%s Package %s', self.name, manager.manager)
+                elif manager.manager==self.Service:
+                    self.Service = manager(self)
+                    debug('%s Service %s', self.name, manager.manager)
+                else:
+                    setattr(self, manager.manager, manager(self))
+                    debug('%s %s %s', self.name, manager.manager, '.')
+                '''
                 except AttributeError:
-                    debug('%s %s %s', self.name, manager.__name__, 'X')
+                    debug('%s %s %s', self.name, manager.manager, 'X')
                     todo.append(manager)
+                '''
 
     @classmethod
     def release_default(cls, target):

@@ -8,7 +8,6 @@ from pybrary.modules import load
 
 from . import debug, error
 import setux.core
-from .distro import Distro
 
 
 @lru_cache()
@@ -16,6 +15,7 @@ def get_modules(ns):
     debug(f'{ns.__name__}')
     path, name = ns.__path__, ns.__name__ + '.'
     try:
+        fil = None
         if hasattr(path, '_path'):                   # namespace
             found = list()
             for pth in path._path:
@@ -34,7 +34,7 @@ def get_modules(ns):
                 for finder, name, _ispkg in iter_modules(path, name)
             ]
     except Exception as x:
-        error(f'{name} ! {x}')
+        error(f'\n ! {fil or name}\n ! {x}\n')
 
 
 def get_raw_plugins(ns, cls):
@@ -57,8 +57,8 @@ def get_plugins(ns, cls):
 
 
 class Plugins:
-    def __init__(self, target, Base, ns):
-        self.target = target
+    def __init__(self, distro, Base, ns):
+        self.distro = distro
         self.Base = Base
         self.ns = ns
         self.items = dict()
@@ -82,15 +82,11 @@ class Plugins:
             debug('%s registred', fqn(mod))
 
 
-class Managers(Plugins):
-    pass
-
-
 class Distros(Plugins):
     def sort(self):
         def sort_key(item):
             name, cls = item
-            return len(Distro.distro_lineage(cls))
+            return len(cls.distro_lineage(cls))
 
         self.items = dict(
             item
@@ -101,9 +97,9 @@ class Distros(Plugins):
         )
 
 
-class Modules(Plugins):
+class DistroPlugin(Plugins):
     def parse(self, mod, plg, plugin):
-        lineage = self.target.distro.lineage
+        lineage = self.distro.lineage
         if plg in lineage:
             name = '.'.join(mod.split('.')[2:])
             old = self.items.get(mod)
@@ -115,3 +111,11 @@ class Modules(Plugins):
             else:
                 return name, plugin
         return None, None
+
+
+class Modules(DistroPlugin): pass
+
+
+class Managers(DistroPlugin): pass
+
+
