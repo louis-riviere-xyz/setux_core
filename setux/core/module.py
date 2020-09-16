@@ -65,7 +65,7 @@ class Module:
         inst(target.Package.install, pre)
         inst(target.deploy, dep)
         inst(target.Package.install, pkg)
-        inst(target.Pip.install, pip)
+        inst(target.pip.install, pip)
         return True
 
     @classmethod
