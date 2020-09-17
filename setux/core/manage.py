@@ -25,10 +25,8 @@ class Deployable(Manager):
 
     def deploy(self, msg=''):
         if msg: msg = f'{msg}:\n'
-        cls = self.__class__.__name__.lower()
         status = f'{"." if self.set() else "X"}'
-        key = self.key
-        info(f'{msg}\tdeploy {cls} {key} {status}')
+        info(f'{msg}\t{self.manager} {self.key} {status}')
         return status=='.'
 
     def __str__(self):

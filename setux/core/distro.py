@@ -36,7 +36,6 @@ class Distro:
         while todo:
             for manager in list(todo):
                 todo.remove(manager)
-                # try:
                 if manager.manager==self.Package:
                     self.Package = manager(self)
                     debug('%s Package %s', self.name, manager.manager)
@@ -46,11 +45,6 @@ class Distro:
                 else:
                     setattr(self, manager.manager, manager(self))
                     debug('%s %s %s', self.name, manager.manager, '.')
-                '''
-                except AttributeError:
-                    debug('%s %s %s', self.name, manager.manager, 'X')
-                    todo.append(manager)
-                '''
 
     @classmethod
     def release_default(cls, target):

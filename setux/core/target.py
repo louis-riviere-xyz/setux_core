@@ -202,11 +202,12 @@ class Target:
         except TypeError:
             raise ModuleTypeError(cls)
 
+        report = kw.pop('report', 'normal') != 'quiet'
         ret = cls(self.distro).deploy(self, **kw)
-
-        params = ', '.join(f'{k}={v}' for k, v in kw.items()) if kw else ''
-        status = '.' if ret else 'X'
-        info(f'\tdeploy {module} {params} {status}')
+        if report:
+            params = ', '.join(f'{k}={v}' for k, v in kw.items()) if kw else ''
+            status = '.' if ret else 'X'
+            info(f'\tdeploy {module} {params} {status}')
         return ret
 
     def rsync_opt(self):
