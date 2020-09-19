@@ -36,7 +36,10 @@ class _Packager(Manager):
         info('\tbigs')
         for line in self.do_bigs():
             size, pkg = line.split()
-            yield f'{size:>9} {pkg}'
+            size = int(size)
+            while size>1000:
+                size = size//1000
+            yield f'{size:>7} {pkg}'
 
     def upgradable(self):
         info('\tupgradable')
