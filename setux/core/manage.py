@@ -59,6 +59,7 @@ class SpecChecker(Deployable):
             for k, v in self.spec.items():
                 if not self.chk(k, data.get(k), v):
                     self.mod(k, v)
+                    data = self.get()
             return self.check()
 
 

@@ -59,7 +59,6 @@ class _Packager(Manager):
         if name in self.done: return
         self._get_ready_()
         self.done.add(name)
-        info('\t--> %s %s', name, ver or '')
         pkg = self.pkgmap.get(name, name)
         self.do_install(pkg, ver)
 

@@ -48,10 +48,11 @@ class Distro:
 
     @classmethod
     def release_default(cls, target):
-        ret, out, err = target.run('cat /etc/*-release', report='quiet', shell=True)
-        infos = dict(l.split('=') for l in out if '=' in l)
-        debug('%s %s', target, infos)
-        return infos
+        if target.release_infos is None:
+            ret, out, err = target.run('cat /etc/*-release', report='quiet', shell=True)
+            target.release_infos = dict(l.split('=') for l in out if '=' in l)
+            debug('%s %s', target, target.release_infos)
+        return target.release_infos
 
     @classmethod
     def release_name(cls, infos):

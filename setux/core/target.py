@@ -34,6 +34,7 @@ class Target:
         self.name = name or 'target'
         self.outdir = outdir
         self.sudo = sudo
+        self.release_infos = None
 
         self.cnx = self.chk_cnx()
         if self.cnx:
@@ -57,9 +58,10 @@ class Target:
             run(f'mkdir -p {path}', shell=True)
             self.set_trace()
 
-    def chk_cnx(self):
+    def chk_cnx(self, report='quiet'):
         ''' to be overwriten
         '''
+        return True
 
     def probe_distro(self):
         Distros = self.distros.items.values()
@@ -218,7 +220,7 @@ class Target:
         self.Package.install('rsync')
         kw['sudo'] = False
         arg, kw = self.parse(*arg, **kw)
-        cmd = 'rsync -qcr -zz --delete'.split()
+        cmd = 'rsync -qlpogcr -zz --delete'.split()
         if self.exclude:
             cmd.extend(['--exclude-from', self.exclude, '--delete-excluded'])
         opt = self.rsync_opt()
@@ -230,16 +232,26 @@ class Target:
         self.trace('rsync '+' '.join(arg), ret, out, err, **kw)
         return ret, out, err
 
-    def script(self, content, path=None, name=None, remove=True, report='quiet'):
+    def script(self, content, cmd=None, user=None, path=None, name=None, trim=True, remove=True, report='quiet'):
         path = path or '/tmp/setux'
         self.run(f'mkdir -p {path}')
         self.run(f'chmod 777 {path}')
         name = name or 'script'
         full = '/'.join((path, name))
+        if trim:
+            lines = (line.strip() for line in content.split('\n'))
+            content = '\n'.join(line for line in lines if line)+'\n'
         self.write(full, content, report='quiet')
-        self.run(f'chmod +x {full}')
-        ret, out, err = self.run(full)
-        if remove: self.run(f'rm {full}', report='quiet')
+        if cmd:
+            if user:
+                cmd = f'sudo -u {user} {cmd}'
+            self.run(f'chmod 644 {full}')
+            ret, out, err = self.run(cmd.format(full))
+        else:
+            self.run(f'chmod +x {full}')
+            ret, out, err = self.run(full)
+        if remove:
+            self.run(f'rm {full}', report='quiet')
         return ret, out, err
 
     def read(self, path, mode='rt', report='normal'): todo(self)
