@@ -5,11 +5,12 @@ from . import info
 
 
 class Manager:
-    def __init__(self, distro):
+    def __init__(self, distro, quiet=False):
         self.distro = distro
         self.target = distro.target
         self.run = self.target.run
         self.key = None
+        self.quiet = quiet
 
     def __str__(self):
         base = self.__class__.__bases__[0].__name__
@@ -20,13 +21,17 @@ class Deployable(Manager):
     def __call__(self, key, *args, **spec):
         self.key = key
         self.args = args
-        self.spec = spec
+        self.spec = {
+            k : str(v)
+            for k, v in spec.items()
+        }
         return self
 
     def deploy(self, msg=''):
         if msg: msg = f'{msg}:\n'
         status = f'{"." if self.set() else "X"}'
-        info(f'{msg}\t{self.manager} {self.key} {status}')
+        if not self.quiet:
+            info(f'{msg}\t{self.manager} {self.key} {status}')
         return status=='.'
 
     def __str__(self):

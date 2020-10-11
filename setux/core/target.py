@@ -141,7 +141,7 @@ class Target:
             cmd = command
 
         try:
-            log('running "%s" ...', command)
+            # log('running "%s" ...', command)
             try:
                 proc = run(cmd, stdout=PIPE, stderr=PIPE, **kw)
             except OSError:
@@ -217,7 +217,8 @@ class Target:
         '''
 
     def rsync(self, *arg, **kw):
-        self.Package.install('rsync')
+        ret, out, err =  Target.run(self, 'rsync --version', report='quiet')
+        if ret: self.Package.install('rsync')
         kw['sudo'] = False
         arg, kw = self.parse(*arg, **kw)
         cmd = 'rsync -qlpogcr -zz --delete'.split()
