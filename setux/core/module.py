@@ -61,11 +61,13 @@ class Module:
                     except: pass
         return subs
 
-    def install(self, target, *, dep=None, pre=None, pkg=None, pip=None):
+    def install(self, target, *, dep=None, pre=None, pkg=None, pip=None, npm=None, gem=None):
         inst(target.Package.install, pre)
         inst(target.deploy, dep)
         inst(target.Package.install, pkg)
         inst(target.pip.install, pip)
+        inst(target.npm.install, npm)
+        inst(target.gem.install, gem)
         return True
 
     @classmethod

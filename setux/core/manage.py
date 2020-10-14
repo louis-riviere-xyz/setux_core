@@ -24,18 +24,20 @@ class Deployable(Manager):
         self.spec = {
             k : str(v)
             for k, v in spec.items()
+            if v is not None
         }
         return self
 
     def deploy(self, msg=''):
-        if msg: msg = f'{msg}:\n'
         status = f'{"." if self.set() else "X"}'
         if not self.quiet:
+            if msg: msg = f'{msg}:\n'
             info(f'{msg}\t{self.manager} {self.key} {status}')
         return status=='.'
 
     def __str__(self):
-        return f'{self.__class__.__name__} {self.get()}'
+        fields = ', '.join(f'{k}={v}' for k, v in self.get().items())
+        return f'{self.manager}({fields})'
 
 
 class SpecChecker(Deployable):

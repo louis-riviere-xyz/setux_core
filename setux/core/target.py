@@ -1,4 +1,4 @@
-from shlex import split
+from shlex import split, quote
 from subprocess import (
     PIPE,
     CalledProcessError,
@@ -125,7 +125,7 @@ class Target:
 
         if not shell and len(arg)==1:
             arg = filter(None,
-                (i.strip() for i in split(arg[0]))
+                (quote(i.strip()) for i in split(arg[0]))
             )
         args.extend(arg)
         return args, kw
