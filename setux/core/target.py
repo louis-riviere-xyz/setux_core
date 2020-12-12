@@ -27,13 +27,11 @@ class Target:
     def __init__(self, *,
         name = None,
         distro = None,
-        sudo = None,
         outdir = None,
         exclude = None,
     ):
         self.name = name or 'target'
         self.outdir = outdir
-        self.sudo = sudo
         self.release_infos = None
 
         self.cnx = self.chk_cnx()
@@ -42,7 +40,6 @@ class Target:
                 Distro, setux.distros
             )
             self.probe_distro()
-            self.sudo = self.distro.login.id != 0
             self.exclude = exclude
         else:
             self.distro = None
@@ -119,9 +116,6 @@ class Target:
             kw['shell'] = shell
 
         args = []
-
-        if kw.pop('sudo', True) and self.sudo:
-            args.append('sudo')
 
         if not shell and len(arg)==1:
             arg = filter(None,
@@ -219,7 +213,6 @@ class Target:
     def rsync(self, *arg, **kw):
         ret, out, err =  Target.run(self, 'rsync --version', report='quiet')
         if ret: self.Package.install('rsync')
-        kw['sudo'] = False
         arg, kw = self.parse(*arg, **kw)
         cmd = 'rsync -qlpogcr -zz --delete'.split()
         if self.exclude:
