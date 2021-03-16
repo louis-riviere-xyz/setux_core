@@ -179,6 +179,19 @@ class Target:
             error("%s raised: %s", cmd, exc)
             raise
 
+    def check_one(self, cmd):
+        ret, out, err = self.run(cmd)
+        return ret==0
+
+    def check_all(self, cmds):
+        return all(
+            self.check_one(cmd)
+            for cmd in cmds.strip().split('\n')
+        )
+
+    def check(self, cmd):
+        return self.check_all(cmd) if '\n' in cmd else self.check_one(cmd)
+
     def deploy(self, module, **kw):
         if not self.cnx:
             error('deploy ! no cnx')
