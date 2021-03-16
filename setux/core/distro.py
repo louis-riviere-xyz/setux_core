@@ -27,9 +27,16 @@ class Distro:
             Module, setux.modules
         )
         self.set_managers()
+        self.reg_modules()
 
     def __str__(self):
         return f'Distro : {self.name}'
+
+    def reg_modules(self):
+        for module in self.modules.items.values():
+            attr = getattr(module, 'register', None)
+            if attr:
+                self.target.register(module, attr)
 
     def set_managers(self):
         todo = list(self.managers.items.values())

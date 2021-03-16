@@ -4,6 +4,7 @@ from subprocess import (
     CalledProcessError,
     run,
 )
+from functools import partial
 
 from pybrary.func import todo
 
@@ -214,10 +215,21 @@ class Target:
         report = kw.pop('report', 'normal') != 'quiet'
         ret = cls(self.distro).deploy(self, **kw)
         if report:
+            name = kw.pop('name', None)
             params = ', '.join(f'{k}={v}' for k, v in kw.items()) if kw else ''
             status = '.' if ret else 'X'
-            info(f'\tdeploy {module} {params} {status}')
+            if name:
+                info(f'\t{name} {params} {status}')
+            else:
+                info(f'\tdeploy {module} {params} {status}')
         return ret
+
+    def register(self, module, name):
+        if name in self.__dict__:
+            error(f'\n ! Register Error !\n{self} has already a "{name}" attribute.\n')
+            return
+        setattr(self, name, partial(self.deploy, module, name=name))
+        debug(f'{module.__module__} registred as {name}')
 
     def rsync_opt(self):
         ''' additional rsync opts
