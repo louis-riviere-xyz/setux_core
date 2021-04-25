@@ -44,21 +44,21 @@ class Service(Manager):
 
     def start(self, name):
         svc = self.svcmap.get(name, name)
-        if not self.status(svc):
+        if not self.status(name):
             info(f'\tstart {name}')
             self.do_start(svc)
             self.wait(name)
 
     def stop(self, name):
         svc = self.svcmap.get(name, name)
-        if self.status(svc):
+        if self.status(name):
             info(f'\tstop {name}')
             self.do_stop(svc)
             self.wait(name, up=False)
 
     def restart(self, name):
         svc = self.svcmap.get(name, name)
-        if self.status(svc):
+        if self.status(name):
             info(f'\trestart {name}')
             self.do_restart(svc)
             self.wait(name)

@@ -3,6 +3,8 @@ from pybrary.func import memo
 from . import debug
 from .manage import Manager
 from .module import Module
+from .package import SystemPackager
+from .service import Service
 from . import plugins
 import setux.managers
 import setux.modules
@@ -43,15 +45,17 @@ class Distro:
         while todo:
             for manager in list(todo):
                 todo.remove(manager)
-                if manager.manager==self.Package:
-                    self.Package = manager(self)
-                    debug('%s Package %s', self.name, manager.manager)
-                elif manager.manager==self.Service:
-                    self.Service = manager(self)
-                    debug('%s Service %s', self.name, manager.manager)
+                if issubclass(manager,SystemPackager):
+                    if manager.manager==self.Package:
+                        self.Package = manager(self)
+                        debug('%s Package %s', self.name, manager.manager)
+                elif issubclass(manager, Service):
+                    if manager.manager==self.Service:
+                        self.Service = manager(self)
+                        debug('%s Service %s', self.name, manager.manager)
                 else:
                     setattr(self, manager.manager, manager(self))
-                    debug('%s %s %s', self.name, manager.manager, '.')
+                    debug('%s %s', self.name, manager.manager)
 
     @classmethod
     def release_default(cls, target):

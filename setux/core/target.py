@@ -67,7 +67,7 @@ class Target:
         for Dist in Distros:
             if Dist.release_check(self, infos):
                 self.distro = Dist(self)
-                debug(f'{self.distro.host.name} : {self.distro.name}')
+                debug(f'{self.distro.system.hostname} : {self.distro.name}')
                 break
         else:
             raise UnsupportedDistroError(self)
