@@ -16,6 +16,7 @@ class _Packager(Manager):
         self.ready = True
 
     def installed(self, pattern=None):
+        self._get_ready_()
         if pattern:
             for name, ver in self.do_installed():
                 if pattern in name:
@@ -23,16 +24,17 @@ class _Packager(Manager):
         else:
             yield from self.do_installed()
 
-    def available(self, pattern=None):
+    def installable(self, pattern=None):
         self._get_ready_()
         if pattern:
-            for name, ver in self.do_available():
+            for name, ver in self.do_installable():
                 if pattern in name.lower():
                     yield name, ver
         else:
-            yield from self.do_available()
+            yield from self.do_installable()
 
     def bigs(self):
+        self._get_ready_()
         info('\tbigs')
         for line in self.do_bigs():
             size, pkg = line.split()
@@ -80,7 +82,7 @@ class _Packager(Manager):
     def do_remove(self, pkg): todo(self)
     def do_cleanup(self): todo(self)
     def do_installed(self): todo(self)
-    def do_available(self): todo(self)
+    def do_installable(self): todo(self)
 
 
 class SystemPackager(_Packager):

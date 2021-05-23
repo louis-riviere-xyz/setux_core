@@ -143,7 +143,7 @@ class Target:
                 kw['shell'] = True
                 proc = run(cmd, stdout=PIPE, stderr=PIPE, **kw)
 
-            out = proc.stdout.decode("utf-8").strip()
+            out = proc.stdout.decode('utf-8', errors='replace').strip()
             if out:
                 if report!='quiet':
                     debug("%s [out]:\n%s", command, out)
@@ -152,7 +152,7 @@ class Target:
                     if skip:
                         out = [i for i in out if not skip(i)]
 
-            err = proc.stderr.decode("utf-8").strip()
+            err = proc.stderr.decode('utf-8', errors='replace').strip()
             if err:
                 log("%s [err]:\n%s", command, err)
                 if not raw:
@@ -171,8 +171,8 @@ class Target:
                     "\n%s > %s\n%s\n%s",
                     " ".join(exc.cmd),
                     exc.returncode,
-                    exc.stdout.decode("utf-8"),
-                    exc.stderr.decode("utf-8"),
+                    exc.stdout.decode('utf-8', errors='replace'),
+                    exc.stderr.decode('utf-8', errors='replace'),
                 )
             return -1, "ERROR", str(exc)
 
@@ -231,13 +231,19 @@ class Target:
         setattr(self, name, partial(self.deploy, module, name=name))
         debug(f'{module.__module__} registred as {name}')
 
+    def rsync_check(self):
+        if hasattr(self, '_rsync_checked_'): return
+        ret, out, err =  self.run('rsync --version', report='quiet')
+        if ret:
+            self.Package.install('rsync')
+        self._rsync_checked_ = True
+
     def rsync_opt(self):
         ''' additional rsync opts
         '''
 
     def rsync(self, *arg, **kw):
-        ret, out, err =  Target.run(self, 'rsync --version', report='quiet')
-        if ret: self.Package.install('rsync')
+        self.rsync_check()
         arg, kw = self.parse(*arg, **kw)
         cmd = 'rsync -qlpogcr -zz --delete'.split()
         if self.exclude:
