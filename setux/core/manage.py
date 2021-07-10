@@ -1,3 +1,5 @@
+from pybrary.func import todo
+
 from . import info
 
 
@@ -21,12 +23,16 @@ class Deployable(Manager):
     def __call__(self, key, *args, **spec):
         self.key = key
         self.args = args
-        self.spec = {
-            k : str(v)
-            for k, v in spec.items()
-            if v is not None
-        }
+        self.spec = self.validate(spec)
         return self
+
+    def validate(self, specs):
+        return {
+            k : v
+            for k, v in self.do_validate(specs)
+        }
+
+    def do_validate(self, specs): todo(self)
 
     def deploy(self, msg=''):
         status = f'{"." if self.set() else "X"}'

@@ -44,32 +44,39 @@ class _Packager(Manager):
             yield f'{size:>7} {pkg}'
 
     def upgradable(self):
+        self._get_ready_()
         info('\tupgradable')
         yield from self.do_upgradable()
 
     def update(self):
+        self._get_ready_()
         info('\tupdate')
         self.do_update()
         for name, ver in self.upgradable():
             info(f'\t\t{name}')
 
     def upgrade(self):
+        self._get_ready_()
         info('\tupgrade')
         self.do_upgrade()
 
     def install(self, name, ver=None):
         if name in self.done: return
         self._get_ready_()
+        info('\t--> %s', name)
         self.done.add(name)
         pkg = self.pkgmap.get(name, name)
         self.do_install(pkg, ver)
 
     def remove(self, name):
+        self._get_ready_()
         info('\t<-- %s', name)
+        self.done.discard(name)
         pkg = self.pkgmap.get(name, name)
         self.do_remove(pkg)
 
     def cleanup(self):
+        self._get_ready_()
         info('\tcleanup')
         self.do_cleanup()
 
