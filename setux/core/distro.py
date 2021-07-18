@@ -3,7 +3,7 @@ from pybrary.func import memo
 from . import debug
 from .manage import Manager
 from .module import Module
-from .package import SystemPackager
+from .package import CommonPackager, SystemPackager
 from .service import Service
 from . import plugins
 import setux.managers
@@ -54,8 +54,9 @@ class Distro:
                         self.Service = manager(self)
                         debug('%s Service %s', self.name, manager.manager)
                 else:
-                    setattr(self, manager.manager, manager(self))
-                    debug('%s %s', self.name, manager.manager)
+                    if manager.is_supported(self):
+                        setattr(self, manager.manager, manager(self))
+                        debug('%s %s', self.name, manager.manager)
 
     @classmethod
     def release_default(cls, target):
@@ -116,3 +117,18 @@ class Distro:
         for distro in self.bases:
             svcs.update(distro.svcmap)
         return svcs
+
+    def search(self, pkg):
+        for name, ver in self.Package.installable(pkg):
+            yield self.Package.manager, name, ver
+
+        for key, cls in self.managers.items.items():
+            if issubclass(cls, CommonPackager):
+                packager = getattr(self, cls.manager, None)
+                if not packager: continue
+                try:
+                    for name, ver in packager.installable(pkg):
+                        yield key, name, ver
+                except Exception as x:
+                    debug(f'search {key} ! {x}')
+

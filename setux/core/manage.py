@@ -14,6 +14,10 @@ class Manager:
         self.key = None
         self.quiet = quiet
 
+    @staticmethod
+    def is_supported(distro):
+        return True
+
     def __str__(self):
         base = self.__class__.__bases__[0].__name__
         return f'{base}.{self.manager}'

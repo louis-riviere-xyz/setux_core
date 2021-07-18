@@ -4,7 +4,7 @@ from textwrap import dedent
 
 from pybrary.func import todo
 
-from . import error
+from . import error, debug
 
 
 def inst(installer, installables):
@@ -61,13 +61,18 @@ class Module:
                     except: pass
         return subs
 
-    def install(self, target, *, dep=None, pre=None, pkg=None, pip=None, npm=None, gem=None):
+    def install(self, target, *, pre=None, dep=None, pkg=None, **specs):
         inst(target.Package.install, pre)
         inst(target.deploy, dep)
         inst(target.Package.install, pkg)
-        inst(target.pip.install, pip)
-        inst(target.npm.install, npm)
-        inst(target.gem.install, gem)
+        for name, packages in specs.items():
+            try:
+                packager = getattr(self, name)
+            except Exception as x:
+                debug(f'install ! {x}')
+                error(f'invalid packager : {name}')
+            else:
+                inst(packager.install, packages)
         return True
 
     @classmethod

@@ -27,7 +27,7 @@ class _Packager(Manager):
     def installable(self, pattern=None):
         self._get_ready_()
         if pattern:
-            for name, ver in self.do_installable():
+            for name, ver in self.do_installable(pattern):
                 if pattern in name.lower():
                     yield name, ver
         else:
@@ -89,7 +89,7 @@ class _Packager(Manager):
     def do_remove(self, pkg): todo(self)
     def do_cleanup(self): todo(self)
     def do_installed(self): todo(self)
-    def do_installable(self): todo(self)
+    def do_installable(self, pattern): todo(self)
 
 
 class SystemPackager(_Packager):
