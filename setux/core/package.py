@@ -13,25 +13,26 @@ class _Packager(Manager):
     def _get_ready_(self):
         if self.ready: return
         self.do_init()
+        self.mapkg = {v:k for k,v in self.pkgmap.items()}
         self.ready = True
 
-    def installed(self, pattern=None):
+    def filter(self, do_fetch, pattern=None):
         self._get_ready_()
-        if pattern:
-            for name, ver in self.do_installed():
-                if pattern in name:
-                    yield name, ver
-        else:
-            yield from self.do_installed()
-
-    def installable(self, pattern=None):
-        self._get_ready_()
-        if pattern:
-            for name, ver in self.do_installable(pattern):
+        chk_name = self.mapkg.get
+        for name, ver in do_fetch(pattern):
+            name = chk_name(name, name)
+            if pattern:
                 if pattern in name.lower():
                     yield name, ver
-        else:
-            yield from self.do_installable()
+            else:
+                yield name, ver
+
+
+    def installed(self, pattern=None):
+        yield from self.filter(self.do_installed, pattern)
+
+    def installable(self, pattern=None):
+        yield from self.filter(self.do_installable, pattern)
 
     def bigs(self):
         self._get_ready_()
@@ -88,7 +89,7 @@ class _Packager(Manager):
     def do_bigs(self): todo(self)
     def do_remove(self, pkg): todo(self)
     def do_cleanup(self): todo(self)
-    def do_installed(self): todo(self)
+    def do_installed(self, pattern): todo(self)
     def do_installable(self, pattern): todo(self)
 
 
@@ -100,4 +101,22 @@ class SystemPackager(_Packager):
 
 class CommonPackager(_Packager):
     pkgmap = dict()
+
+    def __init__(self, distro):
+        super().__init__(distro)
+        self.cache_dir = '/tmp/setux/cache'
+        self.cache_file = f'{self.cache_dir}/{self.manager}'
+        self.cache_days = 10
+
+    def do_installable(self, pattern):
+        from setux.targets import Local
+        local = Local(outdir=self.cache_dir)
+        fil = local.file(self.cache_file)
+        if fil.age is None or fil.age > self.cache_days:
+            self.do_installable_cache()
+
+        for line in open(self.cache_file):
+            yield line.strip().split(maxsplit=1)
+
+    def do_installable_cache(self): todo(self)
 

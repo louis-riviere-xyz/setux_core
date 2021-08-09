@@ -1,6 +1,6 @@
 from pybrary.func import memo
 
-from . import debug
+from . import debug, error
 from .manage import Manager
 from .module import Module
 from .package import CommonPackager, SystemPackager
@@ -130,5 +130,5 @@ class Distro:
                     for name, ver in packager.installable(pkg):
                         yield key, name, ver
                 except Exception as x:
-                    debug(f'search {key} ! {x}')
+                    error(f'search {key} ! {x}')
 
