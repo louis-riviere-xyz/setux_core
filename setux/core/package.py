@@ -96,7 +96,7 @@ class _Packager(Manager):
 class SystemPackager(_Packager):
     def __init__(self, distro):
         super().__init__(distro)
-        self.pkgmap = distro.pkgmaps
+        self.pkgmap = distro.pkgmap
 
 
 class CommonPackager(_Packager):

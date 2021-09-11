@@ -6,7 +6,7 @@ from pybrary.func import fqn
 from pybrary.files import find
 from pybrary.modules import load
 
-from . import debug, error
+from . import debug, info, error
 import setux.core
 
 
@@ -64,6 +64,9 @@ class Plugins:
         self.items = dict()
         self.collect()
 
+    def __iter__(self):
+        return iter(self.items.values())
+
     def parse(self, mod, plg, plugin):
         return plg, plugin
 
@@ -78,7 +81,7 @@ class Plugins:
             if key and val:
                 self.items[key] = val
         self.sort()
-        for mod in self.items.values():
+        for mod in self:
             debug('%s registred', fqn(mod))
 
 
@@ -97,12 +100,14 @@ class Distros(Plugins):
         )
 
 
-class DistroPlugin(Plugins):
+class DistroPlugins(Plugins):
     def parse(self, mod, plg, plugin):
         lineage = self.distro.lineage
         if plg in lineage:
             name = '.'.join(mod.split('.')[2:])
-            old = self.items.get(mod)
+            #__to__chk__
+            # old = self.items.get(mod)
+            old = self.items.get(name)
             if old:
                 idx = lineage.index(plg)
                 old_idx = lineage.index(old.__name__)
@@ -113,9 +118,18 @@ class DistroPlugin(Plugins):
         return None, None
 
 
-class Modules(DistroPlugin): pass
+class Modules(DistroPlugins): pass
 
 
-class Managers(DistroPlugin): pass
+class Managers(DistroPlugins): pass
+
+
+class Mappings(Plugins):
+    def parse(self, mod, plg, plugin):
+        lineage = self.distro.lineage
+        if plg in lineage:
+            name = fqn(plugin)
+            return name, plugin
+        return None, None
 
 

@@ -1,13 +1,15 @@
 from pybrary.func import memo
 
-from . import debug, error
+from . import debug, info, error
 from .manage import Manager
 from .module import Module
+from .mapping import Mapping, Packages, Services
 from .package import CommonPackager, SystemPackager
 from .service import Service
 from . import plugins
 import setux.managers
 import setux.modules
+import setux.mappings
 
 
 # pylint: disable=bad-staticmethod-argument
@@ -28,24 +30,28 @@ class Distro:
         self.modules = plugins.Modules(self,
             Module, setux.modules
         )
+        self.mappings = plugins.Mappings(self,
+            Mapping, setux.mappings
+        )
         self.set_managers()
         self.reg_modules()
+        self.set_mappings()
 
     def __str__(self):
         return f'Distro : {self.name}'
 
     def reg_modules(self):
-        for module in self.modules.items.values():
+        for module in self.modules:
             attr = getattr(module, 'register', None)
             if attr:
                 self.target.register(module, attr)
 
     def set_managers(self):
-        todo = list(self.managers.items.values())
+        todo = list(self.managers)
         while todo:
             for manager in list(todo):
                 todo.remove(manager)
-                if issubclass(manager,SystemPackager):
+                if issubclass(manager, SystemPackager):
                     if manager.manager==self.Package:
                         self.Package = manager(self)
                         debug('%s Package %s', self.name, manager.manager)
@@ -57,6 +63,17 @@ class Distro:
                     if manager.is_supported(self):
                         setattr(self, manager.manager, manager(self))
                         debug('%s %s', self.name, manager.manager)
+
+    def set_mappings(self):
+        for mapping in self.mappings:
+            if issubclass(mapping, Packages):
+                debug('Mapping Packages %s', mapping.__name__)
+                self.pkgmap.update(mapping.mapping)
+            elif issubclass(mapping, Services):
+                debug('Mapping Services %s', mapping.__name__)
+                self.svcmap.update(mapping.mapping)
+            else:
+                error('%s', mapping)
 
     @classmethod
     def release_default(cls, target):
@@ -103,20 +120,6 @@ class Distro:
     @memo
     def lineage(self):
         return [b.__name__ for b in self.bases]
-
-    @memo
-    def pkgmaps(self):
-        pkgs = dict()
-        for distro in self.bases:
-            pkgs.update(distro.pkgmap)
-        return pkgs
-
-    @memo
-    def svcmaps(self):
-        svcs = dict()
-        for distro in self.bases:
-            svcs.update(distro.svcmap)
-        return svcs
 
     def search(self, pkg):
         for name, ver in self.Package.installable(pkg):

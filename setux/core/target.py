@@ -62,7 +62,7 @@ class Target:
         return True
 
     def probe_distro(self):
-        Distros = self.distros.items.values()
+        Distros = self.distros
         infos = Distro.release_default(self)
         for Dist in Distros:
             if Dist.release_check(self, infos):
