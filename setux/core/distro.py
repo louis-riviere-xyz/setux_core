@@ -47,28 +47,34 @@ class Distro:
                 self.target.register(module, attr)
 
     def set_managers(self):
-        todo = list(self.managers)
-        while todo:
-            for manager in list(todo):
-                todo.remove(manager)
-                if issubclass(manager, SystemPackager):
-                    if manager.manager==self.Package:
-                        self.Package = manager(self)
-                        debug('%s Package %s', self.name, manager.manager)
-                elif issubclass(manager, Service):
-                    if manager.manager==self.Service:
-                        self.Service = manager(self)
-                        debug('%s Service %s', self.name, manager.manager)
-                else:
-                    if manager.is_supported(self):
-                        setattr(self, manager.manager, manager(self))
-                        debug('%s %s', self.name, manager.manager)
+        for manager in self.managers:
+            if issubclass(manager, SystemPackager):
+                if manager.manager==self.Package:
+                    self.Package = manager(self)
+                    debug('%s Package %s', self.name, manager.manager)
+            elif issubclass(manager, Service):
+                if manager.manager==self.Service:
+                    self.Service = manager(self)
+                    debug('%s Service %s', self.name, manager.manager)
+            else:
+                if manager.is_supported(self):
+                    setattr(self, manager.manager, manager(self))
+                    debug('%s %s', self.name, manager.manager)
 
     def set_mappings(self):
         for mapping in self.mappings:
             if issubclass(mapping, Packages):
-                debug('Mapping Packages %s', mapping.__name__)
-                self.pkgmap.update(mapping.mapping)
+                dist = mapping.__name__
+                if mapping.pkg:
+                    debug('Mapping %s Packages', dist)
+                    self.pkgmap.update(mapping.pkg)
+                for manager in self.managers:
+                    if issubclass(manager, CommonPackager) and manager.is_supported(self):
+                        name = manager.manager
+                        items = mapping.__dict__.get(name)
+                        if items:
+                            debug('Mapping %s %s', dist, name)
+                            manager(self).pkgmap.update(items)
             elif issubclass(mapping, Services):
                 debug('Mapping Services %s', mapping.__name__)
                 self.svcmap.update(mapping.mapping)
