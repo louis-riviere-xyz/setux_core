@@ -1,3 +1,5 @@
+from inspect import cleandoc
+
 from pybrary.func import todo
 
 from . import info
@@ -17,6 +19,18 @@ class Manager:
     @staticmethod
     def is_supported(distro):
         return True
+
+    @classmethod
+    def help(cls):
+        for mod in (
+            c
+            for c in cls.mro()
+            if issubclass(c, Manager)
+        ):
+            try:
+                return cleandoc(mod.__doc__)
+            except: pass
+        return '?'
 
     def __str__(self):
         base = self.__class__.__bases__[0].__name__

@@ -100,8 +100,6 @@ class SystemPackager(_Packager):
 
 
 class CommonPackager(_Packager):
-    pkgmap = dict()
-
     def __init__(self, distro):
         super().__init__(distro)
         self.cache_dir = '/tmp/setux/cache'
@@ -111,8 +109,8 @@ class CommonPackager(_Packager):
     def do_installable(self, pattern):
         from setux.targets import Local
         local = Local(outdir=self.cache_dir)
-        fil = local.file(self.cache_file)
-        if fil.age is None or fil.age > self.cache_days:
+        cache = local.file(self.cache_file)
+        if cache.age is None or cache.size==0 or cache.age > self.cache_days:
             self.do_installable_cache()
 
         for line in open(self.cache_file):

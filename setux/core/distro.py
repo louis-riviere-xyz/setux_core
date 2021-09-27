@@ -1,6 +1,6 @@
 from pybrary.func import memo
 
-from . import debug, info, error
+from . import logger, debug, info, error
 from .manage import Manager
 from .module import Module
 from .mapping import Mapping, Packages, Services
@@ -24,7 +24,7 @@ class Distro:
     def __init__(self, target):
         self.name = self.__class__.__name__
         self.target = target
-        self.managers = plugins.Managers(self,
+        self.manager_plugins = plugins.Managers(self,
             Manager, setux.managers
         )
         self.modules = plugins.Modules(self,
@@ -47,7 +47,7 @@ class Distro:
                 self.target.register(module, attr)
 
     def set_managers(self):
-        for manager in self.managers:
+        for manager in self.manager_plugins:
             if issubclass(manager, SystemPackager):
                 if manager.manager==self.Package:
                     self.Package = manager(self)
@@ -68,13 +68,12 @@ class Distro:
                 if mapping.pkg:
                     debug('Mapping %s Packages', dist)
                     self.pkgmap.update(mapping.pkg)
-                for manager in self.managers:
-                    if issubclass(manager, CommonPackager) and manager.is_supported(self):
-                        name = manager.manager
+                for name, manager in self.managers.items():
+                    if isinstance(manager, CommonPackager):
                         items = mapping.__dict__.get(name)
                         if items:
                             debug('Mapping %s %s', dist, name)
-                            manager(self).pkgmap.update(items)
+                            manager.pkgmap.update(items)
             elif issubclass(mapping, Services):
                 debug('Mapping Services %s', mapping.__name__)
                 self.svcmap.update(mapping.mapping)
@@ -127,17 +126,28 @@ class Distro:
     def lineage(self):
         return [b.__name__ for b in self.bases]
 
-    def search(self, pkg):
-        for name, ver in self.Package.installable(pkg):
-            yield self.Package.manager, name, ver
+    @memo
+    def managers(self):
+        items = {
+            name : manager
+            for name, manager in self.__dict__.items()
+            if isinstance(manager, Manager)
+        }
+        return items
 
-        for key, cls in self.managers.items.items():
-            if issubclass(cls, CommonPackager):
-                packager = getattr(self, cls.manager, None)
-                if not packager: continue
-                try:
-                    for name, ver in packager.installable(pkg):
-                        yield key, name, ver
-                except Exception as x:
-                    error(f'search {key} ! {x}')
+    def search_pkg(self, pattern):
+        name = self.Package.manager
+        for pkg, ver in self.Package.installable(pattern):
+            yield name, pkg, ver
 
+        for name, packager in self.managers.items():
+            if isinstance(packager, CommonPackager):
+                for pkg, ver in packager.installable(pattern):
+                    yield name, pkg, ver
+
+    def search(self, pattern, report='normal'):
+        if report=='quiet':
+            with logger.quiet():
+                yield from self.search_pkg(pattern)
+        else:
+            yield from self.search_pkg(pattern)

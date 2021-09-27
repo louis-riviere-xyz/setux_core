@@ -105,8 +105,6 @@ class DistroPlugins(Plugins):
         lineage = self.distro.lineage
         if plg in lineage:
             name = '.'.join(mod.split('.')[2:])
-            #__to__chk__
-            # old = self.items.get(mod)
             old = self.items.get(name)
             if old:
                 idx = lineage.index(plg)

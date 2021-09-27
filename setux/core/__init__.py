@@ -1,3 +1,3 @@
-__version__ = '0.21.39.0'
+__version__ = '0.21.39.2'
 
-from setux.logger import debug, info, error, exception
+from setux.logger import logger, debug, info, error, exception
