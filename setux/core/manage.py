@@ -38,10 +38,15 @@ class Manager:
 
 
 class Deployable(Manager):
-    def __call__(self, key, *args, **spec):
+    def fetch(self, key, *args, **spec):
         self.key = key
         self.args = args
         self.spec = self.validate(spec)
+        return self
+
+    def __call__(self, key, *args, **spec):
+        self.fetch(key, *args, **spec)
+        self.deploy()
         return self
 
     def validate(self, specs):

@@ -67,7 +67,7 @@ class _Packager(Manager):
         info('\t--> %s', name)
         self.done.add(name)
         pkg = self.pkgmap.get(name, name)
-        self.do_install(pkg, ver)
+        return self.do_install(pkg, ver)
 
     def remove(self, name):
         self._get_ready_()
