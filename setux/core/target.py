@@ -8,13 +8,14 @@ from functools import partial
 
 from pybrary.func import todo
 
+from setux.logger import debug, info, error
+
 from .errors import (
     MissingModuleError,
     ModuleTypeError,
     UnsupportedDistroError,
     ExecError,
 )
-from . import debug, info, error
 from .distro import Distro
 from .module import Module
 from . import plugins
@@ -217,12 +218,12 @@ class Target:
         if report:
             name = kw.pop('name', None)
             params = ', '.join(f'{k}={v}' for k, v in kw.items()) if kw else ''
-            params = f' {params} ' if params else ''
+            params = f' {params}' if params else ''
             status = '.' if ret else 'X'
             if name:
-                info(f'\t{name}{params}{status}')
+                info(f'\t{name}{params} {status}')
             else:
-                info(f'\t{module}{params}{status}')
+                info(f'\t{module}{params} {status}')
         return ret
 
     def register(self, module, name):

@@ -2,7 +2,8 @@ from time import sleep
 
 from pybrary.func import todo
 
-from . import info
+from setux.logger  import info
+
 from .manage import Manager
 
 

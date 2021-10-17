@@ -6,7 +6,8 @@ from pybrary.func import fqn
 from pybrary.files import find
 from pybrary.modules import load
 
-from . import debug, info, error
+from setux.logger import debug, info, error
+
 import setux.core
 
 

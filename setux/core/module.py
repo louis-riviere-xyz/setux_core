@@ -4,7 +4,7 @@ from textwrap import dedent
 
 from pybrary.func import todo
 
-from . import error, debug
+from setux.logger import error, debug
 
 
 def inst(installer, installables):

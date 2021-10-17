@@ -2,7 +2,7 @@ from inspect import cleandoc
 
 from pybrary.func import todo
 
-from . import info
+from setux.logger import info
 
 
 # pylint: disable=no-member

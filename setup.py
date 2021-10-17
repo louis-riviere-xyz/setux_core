@@ -5,7 +5,7 @@ from setuptools import setup, find_namespace_packages
 from setux.core import __version__
 
 curdir = abspath(dirname(__file__))
-readme = open(join(curdir, 'README.rst')).read()
+readme = open(join(curdir, 'README.md')).read()
 
 setup(
     name             = 'setux_core',

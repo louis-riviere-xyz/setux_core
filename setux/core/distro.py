@@ -1,12 +1,13 @@
 from pybrary.func import memo
 
-from . import logger, debug, info, error
+
 from .manage import Manager
 from .module import Module
 from .mapping import Mapping, Packages, Services
 from .package import CommonPackager, SystemPackager
 from .service import Service
 from . import plugins
+from setux.logger import logger, debug, info, error
 import setux.managers
 import setux.modules
 import setux.mappings

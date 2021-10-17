@@ -1,6 +1,3 @@
-from . import error, debug
-
-
 class Mapping: pass
 
 
