@@ -12,6 +12,7 @@ setup(
     version          = __version__,
     description      = 'System deployment',
     long_description = readme,
+    long_description_content_type='text/markdown',
     keywords         = ['utility', ],
     url              = 'https://github.com/louis-riviere-xyz/setux_core',
     author           = 'Louis RIVIERE',

@@ -1,1 +1,13 @@
 site_name: Setux Core
+
+nav:
+    - Overview: index.md
+    - Classes:
+        - Distro: distro.md
+        - Target: target.md
+        - Manager: manager.md
+        - Module: module.md
+        - Mapping: mapping.md
+        - Logger: logger.md
+
+theme: readthedocs
