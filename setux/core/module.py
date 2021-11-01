@@ -77,12 +77,12 @@ class Module:
 
     @classmethod
     def help(cls):
-        for mod in (
+        for klass in (
             c
             for c in cls.mro()
             if issubclass(c, Module)
         ):
             try:
-                return cleandoc(mod.__doc__)
+                return cleandoc(klass.__doc__)
             except: pass
         return '?'

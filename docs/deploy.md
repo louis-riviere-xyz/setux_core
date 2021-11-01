@@ -1,10 +1,10 @@
-# Distro
-`setux.core.distro.Distro`
+# Manager
+`setux.core.deploy.Deployer`
 
-Distros base class.
+Deployers base class
 
 Implementations:  
- * [setux distros]  
+ * [setux managers]  
  * [setux PLUS]  
 
 

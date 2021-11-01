@@ -49,3 +49,38 @@ class Logger:
                 if h.get_name()==level:
                     return h.baseFilename
 
+    def __str__(self):
+        return str(self.logger)
+
+
+class Deploy:
+    g = "\x1b[32;1m"
+    y = "\x1b[33;1m"
+    r = "\x1b[31;1m"
+    z = "\x1b[0m"
+
+    def __init__(self, logger, setux):
+        self.setux = setux
+        self.logger = logger
+        self.tab = 0
+
+    def info(self, col, msg):
+        self.setux.info(msg)
+        msg = f'{" "*4*self.tab}{col}{msg[3:]}{self.z}'
+        self.logger.info(msg)
+
+    def green(self, msg):
+        self.info(self.g, msg)
+
+    @contextmanager
+    def yellow(self, msg):
+        self.info(self.y, msg)
+        self.tab+=1
+        yield
+        self.tab-=1
+
+    def red(self, msg):
+        self.info(self.r, msg)
+
+    def __str__(self):
+        return str(self.logger)

@@ -22,13 +22,13 @@ class Manager:
 
     @classmethod
     def help(cls):
-        for mod in (
+        for klass in (
             c
             for c in cls.mro()
             if issubclass(c, Manager)
         ):
             try:
-                return cleandoc(mod.__doc__)
+                return cleandoc(klass.__doc__)
             except: pass
         return '?'
 
@@ -37,7 +37,7 @@ class Manager:
         return f'{base}.{self.manager}'
 
 
-class Deployable(Manager):
+class Checker(Manager):
     def fetch(self, key, *args, **spec):
         self.key = key
         self.args = args
@@ -69,7 +69,7 @@ class Deployable(Manager):
         return f'{self.manager}({fields})'
 
 
-class SpecChecker(Deployable):
+class SpecChecker(Checker):
     def chk(self, name, value, spec):
         return value == spec
 
@@ -99,7 +99,7 @@ class SpecChecker(Deployable):
             return self.check()
 
 
-class ArgsChecker(Deployable):
+class ArgsChecker(Checker):
     def check(self):
         data = self.get()
         if data:
