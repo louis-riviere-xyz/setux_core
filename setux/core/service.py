@@ -2,7 +2,8 @@ from time import sleep
 
 from pybrary.func import todo
 
-from setux.logger  import info
+from setux.core.deployers import Enabler, Disabler, Starter, Stoper, Restarter
+from setux.logger  import info, error
 
 from .manage import Manager
 
@@ -27,7 +28,7 @@ class Service(Manager):
             if self.status(name) is up: break
             sleep(3)
 
-    def enable(self, name):
+    def enable_svc(self, name):
         svc = self.svcmap.get(name, name)
         if not self.do_enabled(svc):
             info(f'\tenable {name}')
@@ -35,7 +36,7 @@ class Service(Manager):
             enabled = self.do_enabled(svc)
             info(f'\t{name} enabled {"." if enabled else "X"}')
 
-    def disable(self, name):
+    def disable_svc(self, name):
         svc = self.svcmap.get(name, name)
         if self.do_enabled(svc):
             info(f'\tdisable {name}')
@@ -43,21 +44,21 @@ class Service(Manager):
             enabled = self.do_enabled(svc)
             info(f'\t{name} disabled {"." if not enabled else "X"}')
 
-    def start(self, name):
+    def start_svc(self, name):
         svc = self.svcmap.get(name, name)
         if not self.status(name):
             info(f'\tstart {name}')
             self.do_start(svc)
             self.wait(name)
 
-    def stop(self, name):
+    def stop_svc(self, name):
         svc = self.svcmap.get(name, name)
         if self.status(name):
             info(f'\tstop {name}')
             self.do_stop(svc)
             self.wait(name, up=False)
 
-    def restart(self, name):
+    def restart_svc(self, name):
         svc = self.svcmap.get(name, name)
         if self.status(name):
             info(f'\trestart {name}')
@@ -65,6 +66,51 @@ class Service(Manager):
             self.wait(name)
         else:
             self.start(name)
+
+    def enable(self, name, verbose=True):
+        svc = self.svcmap.get(name, name)
+        try:
+            Enabler(self.target, servicer=self, name=svc)(verbose)
+        except Exception as x:
+            error(f'enable {name} ! {x}')
+            return False
+        return True
+
+    def disable(self, name, verbose=True):
+        svc = self.svcmap.get(name, name)
+        try:
+            Disabler(self.target, servicer=self, name=svc)(verbose)
+        except Exception as x:
+            error(f'disable {name} ! {x}')
+            return False
+        return True
+
+    def start(self, name, verbose=True):
+        svc = self.svcmap.get(name, name)
+        try:
+            Starter(self.target, servicer=self, name=svc)(verbose)
+        except Exception as x:
+            error(f'start {name} ! {x}')
+            return False
+        return True
+
+    def stop(self, name, verbose=True):
+        svc = self.svcmap.get(name, name)
+        try:
+            Stoper(self.target, servicer=self, name=svc)(verbose)
+        except Exception as x:
+            error(f'stop {name} ! {x}')
+            return False
+        return True
+
+    def restart(self, name, verbose=True):
+        svc = self.svcmap.get(name, name)
+        try:
+            Restarter(self.target, servicer=self, name=svc)(verbose)
+        except Exception as x:
+            error(f'restart {name} ! {x}')
+            return False
+        return True
 
     def do_enabled(self, svc): todo(self)
     def do_status(self, svc): todo(self)

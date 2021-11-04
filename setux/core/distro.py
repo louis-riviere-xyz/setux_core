@@ -43,9 +43,9 @@ class Distro:
 
     def reg_modules(self):
         for module in self.modules:
-            attr = getattr(module, 'register', None)
-            if attr:
-                self.target.register(module, attr)
+            name = getattr(module, 'register', None)
+            if name:
+                self.target.register(module, name)
 
     def set_managers(self):
         for manager in self.manager_plugins:

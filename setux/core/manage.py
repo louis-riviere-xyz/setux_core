@@ -2,10 +2,11 @@ from inspect import cleandoc
 
 from pybrary.func import todo
 
-from setux.logger import info
+from setux.logger import silent
+from .deploy import Deployer
 
 
-# pylint: disable=no-member
+# pylint: disable=no-member,not-callable,not-an-iterable
 
 
 class Manager:
@@ -15,6 +16,7 @@ class Manager:
         self.run = self.target.run
         self.key = None
         self.quiet = quiet
+        self.context = dict()
 
     @staticmethod
     def is_supported(distro):
@@ -29,7 +31,7 @@ class Manager:
         ):
             try:
                 return cleandoc(klass.__doc__)
-            except: pass
+            except Exception: pass
         return '?'
 
     def __str__(self):
@@ -37,32 +39,34 @@ class Manager:
         return f'{base}.{self.manager}'
 
 
-class Checker(Manager):
+class Checker(Manager, Deployer):
     def fetch(self, key, *args, **spec):
         self.key = key
         self.args = args
         self.spec = self.validate(spec)
         return self
 
+    @property
+    def labeler(self):
+        return silent
+
+    @property
+    def label(self):
+        return f'{self.manager} {self.key}'
+
     def __call__(self, key, *args, **spec):
         self.fetch(key, *args, **spec)
-        self.deploy()
+        verbose = spec.pop('verbose', True)
+        super().__call__(verbose=verbose)
         return self
 
     def validate(self, specs):
         return {
-            k : v
+            k: v
             for k, v in self.do_validate(specs)
         }
 
     def do_validate(self, specs): todo(self)
-
-    def deploy(self, msg=''):
-        status = f'{"." if self.set() else "X"}'
-        if not self.quiet:
-            if msg: msg = f'{msg}:\n'
-            info(f'{msg}\t{self.manager} {self.key} {status}')
-        return status=='.'
 
     def __str__(self):
         fields = ', '.join(f'{k}={v}' for k, v in self.get().items())
@@ -83,20 +87,19 @@ class SpecChecker(Checker):
             return True                # conform
         return None                    # absent
 
-    def set(self):
-        ok = self.check()
-        if ok:
-            return ok
-        else:
-            if ok is None:
-                self.cre()
+    def deploy(self):
+        data = self.get()
+        if not data:
+            self.cre()
             data = self.get()
-            if not data: return None
-            for k, v in self.spec.items():
+            if not data: return False
+        for k, v in self.spec.items():
+            if not self.chk(k, data.get(k), v):
+                self.mod(k, v)
+                data = self.get()
                 if not self.chk(k, data.get(k), v):
-                    self.mod(k, v)
-                    data = self.get()
-            return self.check()
+                    return False
+        return True
 
 
 class ArgsChecker(Checker):
@@ -109,7 +112,7 @@ class ArgsChecker(Checker):
             return True                # conform
         return None                    # absent
 
-    def set(self):
+    def deploy(self):
         data = self.get()
         for arg in data:
             if arg not in self.args:
@@ -117,4 +120,4 @@ class ArgsChecker(Checker):
         for arg in self.args:
             if arg not in data:
                 self.add(arg)
-        return self.check()
+        return True

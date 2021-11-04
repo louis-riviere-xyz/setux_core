@@ -79,6 +79,13 @@ class Deploy:
         yield
         self.tab-=1
 
+    @contextmanager
+    def silent(self, msg):
+        self.logger.debug(msg)
+        self.tab+=1
+        yield
+        self.tab-=1
+
     def red(self, msg):
         self.info(self.r, msg)
 

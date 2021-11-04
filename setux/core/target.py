@@ -25,7 +25,7 @@ import setux.distros
 # pylint: disable= filter-builtin-not-iterating
 
 
-class Target:
+class CoreTarget:
     def __init__(self, *,
         name = None,
         distro = None,
@@ -194,6 +194,7 @@ class Target:
     def check(self, cmd):
         return self.check_all(cmd) if '\n' in cmd else self.check_one(cmd)
 
+
     def deploy(self, module, **kw):
         if not self.cnx:
             error('deploy ! no cnx')
@@ -233,6 +234,23 @@ class Target:
         setattr(self, name, partial(self.deploy, module, name=name))
         debug(f'{module.__module__} registred as {name}')
 
+    def hash(self, path):
+        hasher = 'shasum'
+        ret, out, err =  self.run(f'{hasher} {path}', report='quiet')
+        if ret: return None
+        h, p = out[0].split()
+        assert p.strip()==path
+        return h
+
+    def hash_dir(self, path):
+        hasher = 'shasum'
+        h1 = f'find {path} -type f -print0 | xargs -0 {hasher} | cut -b-40 | sort | {hasher}'
+        h2 = f"find {path} -type f -exec {hasher} {{}} + | awk '{{print $1}}' | sort | {hasher}"
+        ret, out, err =  self.run(h1, report='quiet')
+        if ret: return None
+        h, _p = out[0].split()
+        return h
+
     def rsync_check(self):
         if hasattr(self, '_rsync_checked_'): return
         ret, out, err =  self.run('rsync --version', report='quiet')
@@ -255,9 +273,9 @@ class Target:
             cmd.append(opt)
         cmd.extend(arg)
         kw['report'] = 'verbose'
-        ret, out, err =  Target.run(self, *cmd, **kw)
+        ret, out, err =  CoreTarget.run(self, *cmd, **kw)
         self.trace('rsync '+' '.join(arg), ret, out, err, **kw)
-        return ret, out, err
+        return ret==0
 
     def script(self, content, cmd=None, user=None, path=None, name=None, trim=True, remove=True, report='quiet'):
         path = path or '/tmp/setux'

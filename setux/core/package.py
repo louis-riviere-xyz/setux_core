@@ -1,6 +1,7 @@
 from pybrary.func import todo
 
-from setux.logger import info
+from setux.core.deployers import Installer, Remover
+from setux.logger import error, info
 
 from .manage import Manager
 
@@ -62,7 +63,7 @@ class _Packager(Manager):
         info('\tupgrade')
         self.do_upgrade()
 
-    def install(self, name, ver=None):
+    def install_pkg(self, name, ver=None):
         if name in self.done: return
         self._get_ready_()
         info('\t--> %s', name)
@@ -70,12 +71,28 @@ class _Packager(Manager):
         pkg = self.pkgmap.get(name, name)
         return self.do_install(pkg, ver)
 
-    def remove(self, name):
+    def install(self, name, ver=None, verbose=False):
+        try:
+            Installer(self.target, packager=self, name=name, ver=ver)(verbose)
+        except Exception as x:
+            error(f'install {name} ! {x}')
+            return False
+        return True
+
+    def remove_pkg(self, name):
         self._get_ready_()
         info('\t<-- %s', name)
         self.done.discard(name)
         pkg = self.pkgmap.get(name, name)
-        self.do_remove(pkg)
+        return self.do_remove(pkg)
+
+    def remove(self, name, verbose=False):
+        try:
+            Remover(self.target, packager=self, name=name)(verbose)
+        except Exception as x:
+            error(f'remove {name} ! {x}')
+            return False
+        return True
 
     def cleanup(self):
         self._get_ready_()

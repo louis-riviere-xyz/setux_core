@@ -131,4 +131,3 @@ class Mappings(Plugins):
             return name, plugin
         return None, None
 
-
