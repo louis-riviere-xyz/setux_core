@@ -1,5 +1,5 @@
 from setux.logger import silent
-from .deploy import Runner, Deployer
+from .deploy import Runner, Deployer, Deployers
 
 
 class Pinger(Runner):
@@ -52,10 +52,6 @@ class Sender(Deployer):
 
 class Syncer(Deployer):
     @property
-    def labeler(self):
-        return silent
-
-    @property
     def label(self):
         dst = self.dst if hasattr(self, 'dst') else self.src
         dst = f' -> {dst}' if dst != self.src else ''
@@ -70,6 +66,28 @@ class Syncer(Deployer):
     def deploy(self):
         dst = self.dst if hasattr(self, 'dst') else self.src
         return self.target.do_sync(self.src, dst)
+
+
+class Moduler(Runner):
+    @property
+    def label(self):
+        return self.module
+
+    def deploy(self):
+        return self.target.deploy(self.module)
+
+
+class Modules(Deployers):
+    @property
+    def label(self):
+        return f'Modules {self.name}'
+
+    @property
+    def deployers(self):
+        return [
+            Moduler(self.target, module=module)
+            for module in self.modules
+        ]
 
 
 class Installer(Deployer):

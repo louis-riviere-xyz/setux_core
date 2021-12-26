@@ -68,6 +68,7 @@ class Distro:
                 dist = mapping.__name__
                 if mapping.pkg:
                     debug('Mapping %s Packages', dist)
+                    # debug(' '.join(mapping.pkg.keys()))
                     self.pkgmap.update(mapping.pkg)
                 for name, manager in self.managers.items():
                     if isinstance(manager, CommonPackager):

@@ -71,7 +71,7 @@ class _Packager(Manager):
         pkg = self.pkgmap.get(name, name)
         return self.do_install(pkg, ver)
 
-    def install(self, name, ver=None, verbose=False):
+    def install(self, name, ver=None, verbose=True):
         try:
             Installer(self.target, packager=self, name=name, ver=ver)(verbose)
         except Exception as x:
@@ -86,7 +86,7 @@ class _Packager(Manager):
         pkg = self.pkgmap.get(name, name)
         return self.do_remove(pkg)
 
-    def remove(self, name, verbose=False):
+    def remove(self, name, verbose=True):
         try:
             Remover(self.target, packager=self, name=name)(verbose)
         except Exception as x:

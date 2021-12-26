@@ -235,7 +235,7 @@ class CoreTarget:
         debug(f'{module.__module__} registred as {name}')
 
     def hash(self, path):
-        hasher = 'shasum'
+        hasher = 'shasum -b'
         ret, out, err =  self.run(f'{hasher} {path}', report='quiet')
         if ret: return None
         h, p = out[0].split()
@@ -243,10 +243,9 @@ class CoreTarget:
         return h
 
     def hash_dir(self, path):
-        hasher = 'shasum'
-        h1 = f'find {path} -type f -print0 | xargs -0 {hasher} | cut -b-40 | sort | {hasher}'
-        h2 = f"find {path} -type f -exec {hasher} {{}} + | awk '{{print $1}}' | sort | {hasher}"
-        ret, out, err =  self.run(h1, report='quiet')
+        hasher = 'shasum -b'
+        hcmd = f'find {path} -type f -print0 | xargs -0 {hasher} | cut -b-40 | sort | {hasher}'
+        ret, out, err =  self.run(hcmd, report='quiet')
         if ret: return None
         h, _p = out[0].split()
         return h

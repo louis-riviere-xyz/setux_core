@@ -1,6 +1,7 @@
+from collections import defaultdict
+from functools import lru_cache
 from importlib import import_module
 from pkgutil import iter_modules
-from functools import lru_cache
 
 from pybrary.func import fqn
 from pybrary.files import find
@@ -63,6 +64,7 @@ class Plugins:
         self.Base = Base
         self.ns = ns
         self.items = dict()
+        self.mappings = defaultdict(int)
         self.collect()
 
     def __iter__(self):
@@ -125,9 +127,10 @@ class Managers(DistroPlugins): pass
 
 class Mappings(Plugins):
     def parse(self, mod, plg, plugin):
-        lineage = self.distro.lineage
-        if plg in lineage:
+        if plg in self.distro.lineage:
             name = fqn(plugin)
+            self.mappings[name]+=1
+            name += f'_{self.mappings[name]}'
             return name, plugin
         return None, None
 
