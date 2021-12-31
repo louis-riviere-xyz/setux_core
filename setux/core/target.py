@@ -234,22 +234,6 @@ class CoreTarget:
         setattr(self, name, partial(self.deploy, module, name=name))
         debug(f'{module.__module__} registred as {name}')
 
-    def hash(self, path):
-        hasher = 'shasum -b'
-        ret, out, err =  self.run(f'{hasher} {path}', report='quiet')
-        if ret: return None
-        h, p = out[0].split()
-        assert p.strip()==path
-        return h
-
-    def hash_dir(self, path):
-        hasher = 'shasum -b'
-        hcmd = f'find {path} -type f -print0 | xargs -0 {hasher} | cut -b-40 | sort | {hasher}'
-        ret, out, err =  self.run(hcmd, report='quiet')
-        if ret: return None
-        h, _p = out[0].split()
-        return h
-
     def rsync_check(self):
         if hasattr(self, '_rsync_checked_'): return
         ret, out, err =  self.run('rsync --version', report='quiet')

@@ -42,8 +42,8 @@ class Sender(Deployer):
         return f'send {self.src}{dst}'
 
     def check(self):
-        lhash = self.local.hash(self.src)
-        rhash = self.target.hash(self.dst)
+        lhash = self.local.file(self.src, verbose=False).hash
+        rhash = self.target.file(self.dst, verbose=False).hash
         return rhash == lhash
 
     def deploy(self):
@@ -59,8 +59,8 @@ class Syncer(Deployer):
 
     def check(self):
         dst = self.dst if hasattr(self, 'dst') else self.src
-        lhash = self.local.hash_dir(self.src)
-        rhash = self.target.hash_dir(dst)
+        lhash = self.local.dir(self.src, verbose=False).hash
+        rhash = self.target.dir(dst, verbose=False).hash
         return rhash == lhash
 
     def deploy(self):
