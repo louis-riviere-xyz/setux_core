@@ -18,9 +18,12 @@ import setux.mappings
 
 class Distro:
     Package = None
-    pkgmap = dict()
     Service = None
-    svcmap = dict()
+
+    def __init_subclass__(cls, **k):
+        super().__init_subclass__(**k)
+        cls.pkgmap = dict()
+        cls.svcmap = dict()
 
     def __init__(self, target):
         self.name = self.__class__.__name__
@@ -68,7 +71,7 @@ class Distro:
                 dist = mapping.__name__
                 if mapping.pkg:
                     debug('Mapping %s Packages', dist)
-                    # debug(' '.join(mapping.pkg.keys()))
+                    debug(' '.join(mapping.pkg.keys()))
                     self.pkgmap.update(mapping.pkg)
                 for name, manager in self.managers.items():
                     if isinstance(manager, CommonPackager):

@@ -167,8 +167,8 @@ class Deployers(Deployer):
     def _call_(self, verbose):
         with logger.quiet():
             with yellow(f'<> {self.label}'):
+                all_ok = True
                 for dpl in self.deployers:
-                    all_ok = True
                     deployer = self.get_deployer(dpl)
                     if isinstance(deployer, (Deployers, Runner)):
                         ok = deployer()
