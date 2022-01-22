@@ -78,46 +78,59 @@ class SpecChecker(Checker):
         return value == spec
 
     def check(self):
-        data = self.get()
-        if data:
+        found = self.get()
+        if found:
             for k, v in self.spec.items():
-                # if data.get(k) != v:
-                if not self.chk(k, data.get(k), v):
+                # if found.get(k) != v:
+                if not self.chk(k, found.get(k), v):
                     return False       # mismatch
             return True                # conform
         return None                    # absent
 
     def deploy(self):
-        data = self.get()
-        if not data:
+        found = self.get()
+        if not found:
             self.cre()
-            data = self.get()
-            if not data: return False
+            found = self.get()
+            if not found: return False
         for k, v in self.spec.items():
-            if not self.chk(k, data.get(k), v):
+            if not self.chk(k, found.get(k), v):
                 self.mod(k, v)
-                data = self.get()
-                if not self.chk(k, data.get(k), v):
+                found = self.get()
+                if not self.chk(k, found.get(k), v):
                     return False
         return True
 
 
 class ArgsChecker(Checker):
     def check(self):
-        data = self.get()
-        if data:
+        found = self.get()
+        if found:
             for arg in self.args:
-                if arg not in data:
+                if arg not in found:
                     return False       # mismatch
             return True                # conform
         return None                    # absent
 
+    def remove(self, args=None, found=None):
+        args = args or self.args
+        found = found or self.get()
+        ok = True
+        for arg in found:
+            if arg in args:
+                ok = ok and self.rm(arg)
+        return ok
+
+    def extend(self, args=None, found=None):
+        args = args or self.args
+        found = found or self.get()
+        ok = True
+        for arg in args:
+            if arg not in found:
+                ok = ok and self.add(arg)
+        return ok
+
     def deploy(self):
-        data = self.get()
-        for arg in data:
-            if arg not in self.args:
-                self.rm(arg)
-        for arg in self.args:
-            if arg not in data:
-                self.add(arg)
-        return True
+        args = self.args
+        found = self.get()
+        return self.remove(args, found) and self.extend(args, found)
