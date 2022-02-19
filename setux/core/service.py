@@ -2,8 +2,8 @@ from time import sleep
 
 from pybrary.func import todo
 
-from setux.core.deployers import Enabler, Disabler, Starter, Stoper, Restarter
 from setux.logger  import info, error
+from setux.deployers.service import Enabler, Disabler, Starter, Stoper, Restarter
 
 from .manage import Manager
 
