@@ -44,7 +44,7 @@ class _Packager(Manager):
             size = int(size)
             while size>1000:
                 size = size//1000
-            yield f'{size:>7} {pkg}'
+            yield size, pkg
 
     def upgradable(self):
         self._get_ready_()
