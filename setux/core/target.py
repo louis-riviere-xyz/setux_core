@@ -94,7 +94,10 @@ class CoreTarget:
                 log.write(f'\n[{ret:^3}] {cmd}\n')
                 if out:
                     if kw.get('report')=='quiet':
-                        log.write(f'[out] ... ({len(out)})\n')
+                        if len(out)==1:
+                            log.write(f'[out] {out[0]}\n')
+                        else:
+                            log.write(f'[out] ... ({len(out)})\n')
                     else:
                         if len(out)==1:
                             out = out[0]
@@ -260,7 +263,7 @@ class CoreTarget:
         self.trace('rsync '+' '.join(arg), ret, out, err, **kw)
         return ret==0
 
-    def script(self, content, cmd=None, user=None, path=None, name=None, trim=True, remove=True, report='quiet'):
+    def script(self, content, cmd=None, sudo=None, path=None, name=None, trim=True, remove=True, report='quiet'):
         path = path or '/tmp/setux'
         self.run(f'mkdir -p {path}')
         self.run(f'chmod 777 {path}')
@@ -271,8 +274,8 @@ class CoreTarget:
             content = '\n'.join(line for line in lines if line)+'\n'
         self.write(full, content, report='quiet')
         if cmd:
-            if user:
-                cmd = f'sudo -u {user} {cmd}'
+            if sudo:
+                cmd = f'sudo -u {sudo} {cmd}'
             self.run(f'chmod 644 {full}')
             ret, out, err = self.run(cmd.format(full))
         else:

@@ -11,6 +11,7 @@ class _Packager(Manager):
         super().__init__(distro)
         self.done = set()
         self.ready = False
+        self._installed = None
 
     def _get_ready_(self):
         if self.ready: return
@@ -31,7 +32,13 @@ class _Packager(Manager):
 
 
     def installed(self, pattern=None):
-        yield from self.filter(self.do_installed, pattern)
+        if not self._installed:
+            self._installed = list(self.do_installed())
+
+        def do_installed(_pattern):
+            yield from self._installed
+
+        yield from self.filter(do_installed, pattern)
 
     def installable(self, pattern=None):
         yield from self.filter(self.do_installable, pattern)
@@ -62,6 +69,7 @@ class _Packager(Manager):
         self._get_ready_()
         info('\tupgrade')
         self.do_upgrade()
+        self._installed = None
 
     def install_pkg(self, name, ver=None):
         if name in self.done: return
@@ -69,6 +77,7 @@ class _Packager(Manager):
         info('\t--> %s', name)
         self.done.add(name)
         pkg = self.pkgmap.get(name, name)
+        self._installed = None
         return self.do_install(pkg, ver)
 
     def install(self, name, ver=None, verbose=True):
@@ -84,6 +93,7 @@ class _Packager(Manager):
         info('\t<-- %s', name)
         self.done.discard(name)
         pkg = self.pkgmap.get(name, name)
+        self._installed = None
         return self.do_remove(pkg)
 
     def remove(self, name, verbose=True):
@@ -98,6 +108,7 @@ class _Packager(Manager):
         self._get_ready_()
         info('\tcleanup')
         self.do_cleanup()
+        self._installed = None
 
     def do_init(self): todo(self)
     def do_update(self): todo(self)
@@ -107,7 +118,7 @@ class _Packager(Manager):
     def do_bigs(self): todo(self)
     def do_remove(self, pkg): todo(self)
     def do_cleanup(self): todo(self)
-    def do_installed(self, pattern): todo(self)
+    def do_installed(self): todo(self)
     def do_installable(self, pattern): todo(self)
 
 

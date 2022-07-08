@@ -31,8 +31,9 @@ setup(
         'Topic :: System :: Systems Administration',
         'Topic :: Utilities',
     ],
+    python_requires='>3.8',
     install_requires = [
-        'pybrary>=0.22.22.0',
+        'pybrary>=0.22.28.0',
     ],
     packages = find_namespace_packages(
         include=['setux.*']
