@@ -10,13 +10,17 @@ from .deploy import Deployer
 
 
 class Manager:
-    def __init__(self, distro, quiet=False):
+    def __init__(self, distro, sudo=None, quiet=False):
         self.distro = distro
         self.target = distro.target
-        self.run = self.target.run
         self.key = None
+        self.sudo = None
         self.quiet = quiet
         self.context = dict()
+
+    def run(self, *a, **k):
+        k['sudo'] = self.sudo
+        return self.target.run(*a, **k)
 
     @staticmethod
     def is_supported(distro):
@@ -55,6 +59,7 @@ class Checker(Manager, Deployer):
         return f'{self.manager} {self.key}'
 
     def __call__(self, key, *args, **spec):
+        self.sudo = spec.pop('sudo', None)
         self.fetch(key, *args, **spec)
         verbose = spec.pop('verbose', True)
         super().__call__(verbose=verbose)
