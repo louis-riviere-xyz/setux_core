@@ -19,7 +19,7 @@ class Manager:
         self.context = dict()
 
     def run(self, *a, **k):
-        k['sudo'] = self.sudo
+        k.setdefault('sudo', self.sudo)
         return self.target.run(*a, **k)
 
     @staticmethod
