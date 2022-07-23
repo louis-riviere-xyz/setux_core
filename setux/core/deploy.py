@@ -19,7 +19,7 @@ class Deployer:
             except KeyError:
                 # debug(f'{attr} not in context ({self.label})')
                 if attr=='local': return self.target.set_local()
-                raise AttributeError
+                # raise AttributeError
 
     @property
     def labeler(self):

@@ -80,7 +80,7 @@ class Checker(Manager, Deployer):
 
 class SpecChecker(Checker):
     def chk(self, name, value, spec):
-        return value == spec
+        return value==spec if value and spec else True
 
     def check(self):
         found = self.get()
