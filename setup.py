@@ -31,7 +31,7 @@ setup(
         'Topic :: System :: Systems Administration',
         'Topic :: Utilities',
     ],
-    python_requires='>3.8',
+    python_requires='>3.9',
     install_requires = [
         'pybrary>=0.22.28.0',
     ],

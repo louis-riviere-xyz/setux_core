@@ -1,7 +1,7 @@
 from pybrary.func import todo
 
 from setux.logger import error, info
-from setux.deployers.package import Installer, Remover
+from setux.actions.package import Installer, Remover
 
 from .manage import Manager
 

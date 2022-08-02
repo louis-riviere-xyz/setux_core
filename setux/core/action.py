@@ -5,7 +5,7 @@ from setux.logger import logger, error, green, yellow, red
 # pylint: disable=no-member,not-an-iterable
 
 
-class Deployer:
+class Action:
     def __init__(self, target, **context):
         self.target = target
         self.context = context
@@ -75,7 +75,7 @@ class Deployer:
         self.target.context = self.backup
 
 
-class Runner(Deployer):
+class Runner(Action):
     def _call_(self, verbose):
         with logger.quiet():
             with self.labeler(f'<> {self.label}'):
@@ -92,7 +92,7 @@ class Runner(Deployer):
                 return False
 
 
-class Deployers(Deployer):
+class Actions(Action):
     @property
     def ignore(self):
         return getattr(self, '_continue_', False)
@@ -102,49 +102,49 @@ class Deployers(Deployer):
         setattr(self, '_continue_', val)
 
     @property
-    def deployers(self):
+    def actions(self):
         todo(self)
 
-    def get_deployer(self, dpl):
-        if isinstance(dpl, Deployer):
-            deployer = dpl
+    def get_action(self, act):
+        if isinstance(act, Action):
+            action = act
         else:
-            deployer = dpl(self.target, **self.context)
-        return deployer
+            action = act(self.target, **self.context)
+        return action
 
-    def check_deployer(self, deployer):
-        if hasattr(deployer, 'check'):
+    def check_action(self, action):
+        if hasattr(action, 'check'):
             try:
-                ok = deployer.check()
+                ok = action.check()
             except Exception as x:
                 error(x)
                 ok =  False
         else:
             try:
-                ok = deployer(verbose=False)
+                ok = action(verbose=False)
             except Exception as x:
                 error(x)
                 ok =  False
         return ok
 
-    def deploy_deployer(self, deployer):
+    def deploy_action(self, action):
         err = None
-        with yellow(f'<> {deployer.label}'):
+        with yellow(f'<> {action.label}'):
             try:
-                ok = deployer.deploy()
+                ok = action.deploy()
             except Exception as x:
                 err = str(x)
                 error(err)
                 ok =  False
         if err:
-            red(f'!! {deployer.label}')
+            red(f'!! {action.label}')
         return ok
 
     def check(self):
         all_ok = True
-        for dpl in self.deployers:
-            checker = self.get_deployer(dpl)
-            ok = self.check_deployer(checker)
+        for dpl in self.actions:
+            checker = self.get_action(dpl)
+            ok = self.check_action(checker)
             if not ok:
                 if self.ignore:
                     all_ok = False
@@ -154,9 +154,9 @@ class Deployers(Deployer):
 
     def deploy(self):
         all_ok = True
-        for dpl in self.deployers:
-            deployer = self.get_deployer(dpl)
-            ok = self.deploy_deployer(deployer)
+        for dpl in self.actions:
+            action = self.get_action(dpl)
+            ok = self.deploy_action(action)
             if not ok:
                 if self.ignore:
                     all_ok = False
@@ -168,22 +168,22 @@ class Deployers(Deployer):
         with logger.quiet():
             with yellow(f'<> {self.label}'):
                 all_ok = True
-                for dpl in self.deployers:
-                    deployer = self.get_deployer(dpl)
-                    if isinstance(deployer, (Deployers, Runner)):
-                        ok = deployer()
+                for dpl in self.actions:
+                    action = self.get_action(dpl)
+                    if isinstance(action, (Actions, Runner)):
+                        ok = action()
                     else:
-                        ok = self.check_deployer(deployer)
+                        ok = self.check_action(action)
                         if ok:
-                            green(f'== {deployer.label}')
+                            green(f'== {action.label}')
                         else:
-                            ok = self.deploy_deployer(deployer)
+                            ok = self.deploy_action(action)
                             if ok:
-                                ok = self.check_deployer(deployer)
+                                ok = self.check_action(action)
                                 if ok:
-                                    green(f'>> {deployer.label}')
+                                    green(f'>> {action.label}')
                                 else:
-                                    red(f'XX {deployer.label}')
+                                    red(f'XX {action.label}')
                     all_ok = all_ok and ok
             if all_ok:
                 green(f'.. {self.label}')

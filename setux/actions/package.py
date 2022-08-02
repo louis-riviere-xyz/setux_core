@@ -1,7 +1,7 @@
-from setux.core.deploy import Deployer
+from setux.core.action import Action
 
 
-class Installer(Deployer):
+class Installer(Action):
     @property
     def label(self):
         return f'install {self.name}'
@@ -13,7 +13,7 @@ class Installer(Deployer):
         return self.packager.install_pkg(self.name, self.ver)
 
 
-class Remover(Deployer):
+class Remover(Action):
     @property
     def label(self):
         return f'remove {self.name}'

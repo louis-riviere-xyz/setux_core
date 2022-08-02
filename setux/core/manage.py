@@ -3,7 +3,7 @@ from inspect import cleandoc
 from pybrary.func import todo
 
 from setux.logger import silent
-from .deploy import Deployer
+from .action import Action
 
 
 # pylint: disable=no-member,not-callable,not-an-iterable
@@ -43,7 +43,7 @@ class Manager:
         return f'{base}.{self.manager}'
 
 
-class Checker(Manager, Deployer):
+class Checker(Manager, Action):
     def fetch(self, key, *args, **spec):
         self.key = key
         self.args = args

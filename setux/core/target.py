@@ -266,7 +266,7 @@ class CoreTarget:
     def script(self, content, cmd=None, sudo=None, path=None, name=None, trim=True, remove=True, report='quiet'):
         path = path or '/tmp/setux'
         self.run(f'mkdir -p {path}')
-        self.run(f'chmod 777 {path}')
+        self.run(f'chmod 777 {path}', sudo='root')
         name = name or 'script'
         full = '/'.join((path, name))
         if trim:
@@ -276,13 +276,13 @@ class CoreTarget:
         if cmd:
             if sudo:
                 cmd = f'sudo -u {sudo} {cmd}'
-            self.run(f'chmod 644 {full}')
+            self.run(f'chmod 644 {full}', sudo=sudo)
             ret, out, err = self.run(cmd.format(full))
         else:
-            self.run(f'chmod +x {full}')
-            ret, out, err = self.run(full)
+            self.run(f'chmod +x {full}', sudo=sudo)
+            ret, out, err = self.run(full, sudo=sudo)
         if remove:
-            self.run(f'rm {full}', report='quiet')
+            self.run(f'rm {full}', report='quiet', sudo=sudo)
         return ret, out, err
 
     def read(self, path, mode='rt', report='normal'): todo(self)

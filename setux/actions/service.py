@@ -1,7 +1,7 @@
-from setux.core.deploy import Runner, Deployer
+from setux.core.action import Runner, Action
 
 
-class Enabler(Deployer):
+class Enabler(Action):
     @property
     def label(self):
         return f'enable {self.name}'
@@ -13,7 +13,7 @@ class Enabler(Deployer):
         return self.servicer.do_enable(self.name)
 
 
-class Disabler(Deployer):
+class Disabler(Action):
     @property
     def label(self):
         return f'disable {self.name}'
@@ -25,7 +25,7 @@ class Disabler(Deployer):
         return self.servicer.do_disable(self.name)
 
 
-class Starter(Deployer):
+class Starter(Action):
     @property
     def label(self):
         return f'start {self.name}'
@@ -39,7 +39,7 @@ class Starter(Deployer):
         return ok
 
 
-class Stoper(Deployer):
+class Stoper(Action):
     @property
     def label(self):
         return f'stop {self.name}'
