@@ -3,6 +3,7 @@ from pybrary.func import memo
 
 from .manage import Manager
 from .module import Module
+from .action import Action
 from .mapping import Mapping, Packages, Services
 from .package import CommonPackager, SystemPackager
 from .service import Service
@@ -11,6 +12,7 @@ from setux.logger import logger, debug, info, error
 import setux.managers
 import setux.modules
 import setux.mappings
+import setux.actions
 
 
 # pylint: disable=bad-staticmethod-argument
@@ -37,9 +39,13 @@ class Distro:
         self.mappings = plugins.Mappings(self,
             Mapping, setux.mappings
         )
+        self.actions = plugins.Actions(self,
+            Action, setux.actions
+        )
         self.set_managers()
         self.reg_modules()
         self.set_mappings()
+        self.reg_actions()
 
     def __str__(self):
         return f'Distro : {self.name}'
@@ -49,6 +55,16 @@ class Distro:
             name = getattr(module, 'register', None)
             if name:
                 self.target.register(module, name)
+
+    def reg_actions(self):
+        for action in self.actions:
+            name = getattr(action, 'register', None)
+            if name:
+                if name in self.target.__dict__:
+                    error(f'\n ! Action register Error !\n{self.target} has already a "{name}" attribute.\n')
+                    return
+                setattr(self.target, name, action)
+                debug(f'{action} registred as {name}')
 
     def set_managers(self):
         for manager in self.manager_plugins:

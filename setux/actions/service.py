@@ -2,6 +2,8 @@ from setux.core.action import Runner, Action
 
 
 class Enabler(Action):
+    '''Enable a Service '''
+
     @property
     def label(self):
         return f'enable {self.name}'
@@ -14,6 +16,8 @@ class Enabler(Action):
 
 
 class Disabler(Action):
+    '''Disable a Service '''
+
     @property
     def label(self):
         return f'disable {self.name}'
@@ -26,6 +30,8 @@ class Disabler(Action):
 
 
 class Starter(Action):
+    '''Start a Service '''
+
     @property
     def label(self):
         return f'start {self.name}'
@@ -40,6 +46,8 @@ class Starter(Action):
 
 
 class Stoper(Action):
+    '''Stop a Service '''
+
     @property
     def label(self):
         return f'stop {self.name}'
@@ -54,6 +62,8 @@ class Stoper(Action):
 
 
 class Restarter(Runner):
+    '''Restart a Service '''
+
     @property
     def label(self):
         return f'restart {self.name}'

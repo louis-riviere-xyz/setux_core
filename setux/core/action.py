@@ -1,3 +1,5 @@
+from inspect import cleandoc
+
 from pybrary.func import todo
 
 from setux.logger import logger, error, green, yellow, red
@@ -73,6 +75,13 @@ class Action:
 
     def __exit__(self, typ, val, tb):
         self.target.context = self.backup
+
+    @classmethod
+    def help(cls):
+        try:
+            return cleandoc(cls.__doc__)
+        except:
+            return '?'
 
 
 class Runner(Action):

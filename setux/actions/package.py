@@ -2,6 +2,8 @@ from setux.core.action import Action
 
 
 class Installer(Action):
+    '''Install a Package '''
+
     @property
     def label(self):
         return f'install {self.name}'
@@ -14,6 +16,8 @@ class Installer(Action):
 
 
 class Remover(Action):
+    '''Remove a Package '''
+
     @property
     def label(self):
         return f'remove {self.name}'

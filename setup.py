@@ -33,7 +33,7 @@ setup(
     ],
     python_requires='>3.9',
     install_requires = [
-        'pybrary>=0.22.28.0',
+        'pybrary>=0.22.30.0',
     ],
     packages = find_namespace_packages(
         include=['setux.*']

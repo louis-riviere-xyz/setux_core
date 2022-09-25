@@ -129,10 +129,13 @@ class CoreTarget:
         args.extend(arg)
         return args, kw
 
-    def run(self, *arg, report='normal', critical=True, raw=False, skip=None, **kw):
+    def run(self, *arg, report='normal', critical=True, raw=False, skip=None, timeout=None, signal='INT', **kw):
         def log(*msg):
             if report=='verbose':
                 debug(*msg)
+
+        if timeout:
+            arg = ('timeout', '--signal', f'SIG{signal.upper()}', f'{timeout}s') + arg
 
         cmd = arg
         command = ' '.join(cmd)
@@ -140,7 +143,7 @@ class CoreTarget:
             cmd = command
 
         try:
-            # log('running "%s" ...', command)
+            log('running "%s" ...', command)
             try:
                 proc = run(cmd, stdout=PIPE, stderr=PIPE, **kw)
             except OSError:
@@ -232,7 +235,7 @@ class CoreTarget:
 
     def register(self, module, name):
         if name in self.__dict__:
-            error(f'\n ! Register Error !\n{self} has already a "{name}" attribute.\n')
+            error(f'\n ! Module register Error !\n{self} has already a "{name}" attribute.\n')
             return
         setattr(self, name, partial(self.deploy, module, name=name))
         debug(f'{module.__module__} registred as {name}')
