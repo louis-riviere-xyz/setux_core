@@ -8,6 +8,7 @@ nav:
         - Manager: manager.md
         - Module: module.md
         - Mapping: mapping.md
+        - Action: action.md
         - Logger: logger.md
 
 theme: readthedocs

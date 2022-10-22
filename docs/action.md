@@ -1,17 +1,15 @@
-# Manager
-`setux.core.deploy.Deployer`
+# Action
+`setux.core.action.Action`
 
-Deployers base class
+Top level user functionality.
 
 Implementations:  
  * [setux core]  
- * [setux deployers]  
- * [setux managers]  
- * [setux PLUS]  
+ * [setux actions]  
 
 
 [Setux]: https://setux.readthedocs.io/en/latest
-[setux deployers]: https://setux-deployers.readthedocs.io/en/latest
+[setux actions]: https://setux-actions.readthedocs.io/en/latest
 [setux core]: https://setux-core.readthedocs.io/en/latest
 [setux logger]: https://setux-logger.readthedocs.io/en/latest
 [setux modules]: https://setux-modules.readthedocs.io/en/latest
