@@ -187,18 +187,26 @@ class CoreTarget:
             error("%s raised: %s", cmd, exc)
             raise
 
-    def check_one(self, cmd):
-        ret, out, err = self.run(cmd)
-        return ret==0
+    def check_one(self, cmd, **kw):
+        ret, out, err = self.run(cmd, **kw)
+        return ret == 0
 
-    def check_all(self, cmds):
+    def check_all(self, cmds, **kw):
         return all(
-            self.check_one(cmd)
+            self.check_one(cmd, **kw)
             for cmd in cmds.strip().split('\n')
         )
 
-    def check(self, cmd):
-        return self.check_all(cmd) if '\n' in cmd else self.check_one(cmd)
+    def check_full(self, src, **kw):
+        ret, out, err = self.script(src, **kw)
+        return ret == 0
+
+    def check(self, cmd, **kw):
+        full = kw.pop('full', False)
+        if full:
+            return self.check_full(cmd, **kw)
+        else:
+            return self.check_all(cmd, **kw) if '\n' in cmd else self.check_one(cmd, **kw)
 
 
     def deploy(self, module, **kw):
