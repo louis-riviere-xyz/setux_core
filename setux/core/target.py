@@ -142,6 +142,11 @@ class CoreTarget:
         if kw.get('shell'):
             cmd = command
 
+        inp = kw.get('input')
+        if inp:
+            if isinstance(inp, str):
+                kw['input'] = inp.encode()
+
         try:
             log('running "%s" ...', command)
             try:
