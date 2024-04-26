@@ -5,6 +5,7 @@ from pybrary.func import todo
 from setux.logger  import info, error
 from setux.actions.service import Enabler, Disabler, Starter, Stoper, Restarter
 
+from .error import ServiceError
 from .manage import Manager
 
 
@@ -18,7 +19,10 @@ class Service(Manager):
 
     def status(self, name):
         svc = self.svcmap.get(name, name)
-        up = self.do_status(svc)
+        try:
+            up = self.do_status(svc)
+        except Exception as x:
+            raise ServiceError(self, f'Status({svc})', x)
         info(f'\tservice {name} {"." if up else "X"}')
         return up
 
@@ -30,7 +34,11 @@ class Service(Manager):
 
     def enable_svc(self, name):
         svc = self.svcmap.get(name, name)
-        if not self.do_enabled(svc):
+        try:
+            enabled = self.do_enabled(svc)
+        except Exception as x:
+            raise ServiceError(self, f'Enabled({svc})', x)
+        if not enabled:
             info(f'\tenable {name}')
             self.do_enable(svc)
             enabled = self.do_enabled(svc)
@@ -40,29 +48,44 @@ class Service(Manager):
         svc = self.svcmap.get(name, name)
         if self.do_enabled(svc):
             info(f'\tdisable {name}')
-            self.do_disable(svc)
-            enabled = self.do_enabled(svc)
+            try:
+                self.do_disable(svc)
+            except Exception as x:
+                raise ServiceError(self, f'Disable({svc})', x)
+            try:
+                enabled = self.do_enabled(svc)
+            except Exception as x:
+                raise ServiceError(self, f'Enabled({svc})', x)
             info(f'\t{name} disabled {"." if not enabled else "X"}')
 
     def start_svc(self, name):
         svc = self.svcmap.get(name, name)
         if not self.status(name):
             info(f'\tstart {name}')
-            self.do_start(svc)
+            try:
+                self.do_start(svc)
+            except Exception as x:
+                raise ServiceError(self, f'Start({svc})', x)
             self.wait(name)
 
     def stop_svc(self, name):
         svc = self.svcmap.get(name, name)
         if self.status(name):
             info(f'\tstop {name}')
-            self.do_stop(svc)
+            try:
+                self.do_stop(svc)
+            except Exception as x:
+                raise ServiceError(self, f'Stop({svc})', x)
             self.wait(name, up=False)
 
     def restart_svc(self, name):
         svc = self.svcmap.get(name, name)
         if self.status(name):
             info(f'\trestart {name}')
-            self.do_restart(svc)
+            try:
+                self.do_restart(svc)
+            except Exception as x:
+                raise ServiceError(self, f'Restart({svc})', x)
             self.wait(name)
         else:
             self.start(name)

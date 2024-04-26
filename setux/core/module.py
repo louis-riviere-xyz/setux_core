@@ -2,8 +2,6 @@ from inspect import cleandoc, getsource
 from ast import parse, walk, Call
 from textwrap import dedent
 
-from pybrary.func import todo
-
 from setux.logger import error, debug
 
 

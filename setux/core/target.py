@@ -14,7 +14,6 @@ from .errors import (
     MissingModuleError,
     ModuleTypeError,
     UnsupportedDistroError,
-    ExecError,
 )
 from .distro import Distro
 from .module import Module

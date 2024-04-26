@@ -5,7 +5,7 @@ class SetuxError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return f'\n\n    ! {self.msg} !\n\n'
+        return f'\n\n    {self.__class__.__name__} ! {self.msg} !\n\n'
 
 
 class MissingModuleError(SetuxError):
@@ -39,3 +39,14 @@ class ExecError(SetuxError):
         super().__init__(
             f'{cmd} ! {ret} ! {out} {err}'
         )
+
+
+class ManagerError(SetuxError):
+    def __init__(self, manager, msg, exc):
+        super().__init__(
+            f'{manager.manager} {msg} ! {exc}'
+        )
+
+class PackagerError(ManagerError): pass
+
+class ServiceError(ManagerError): pass
