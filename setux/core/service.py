@@ -5,7 +5,7 @@ from pybrary.func import todo
 from setux.logger  import info, error
 from setux.actions.service import Enabler, Disabler, Starter, Stoper, Restarter
 
-from .error import ServiceError
+from .errors import ServiceError
 from .manage import Manager
 
 
