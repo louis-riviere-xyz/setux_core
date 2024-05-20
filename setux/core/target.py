@@ -116,19 +116,19 @@ class CoreTarget:
     def parse(self, *arg, **kw):
         shell = kw.get('shell')
         if shell is None and len(arg)==1:
-            shell = any(x in arg[0] for x in '*|>?<')
+            shell = any(x in arg[0] for x in '*|>?</')
             kw['shell'] = shell
 
         args = []
-
         if not shell and len(arg)==1:
             arg = filter(None,
                 (quote(i.strip()) for i in split(arg[0]))
             )
         args.extend(arg)
+
         return args, kw
 
-    def run(self, *arg, report='normal', critical=True, raw=False, skip=None, timeout=None, signal='INT', **kw):
+    def run(self, *arg, report='normal', critical=True, raw=False, skip=None, timeout=None, signal='INT', input=None, text=True, **kw):
         def log(*msg):
             if report=='verbose':
                 debug(*msg)
@@ -141,6 +141,9 @@ class CoreTarget:
         if kw.get('shell'):
             cmd = command
 
+        kw['input'] = input
+        kw['text'] = text
+
         try:
             log('running "%s" ...', command)
             try:
@@ -149,7 +152,11 @@ class CoreTarget:
                 kw['shell'] = True
                 proc = run(cmd, stdout=PIPE, stderr=PIPE, **kw)
 
-            out = proc.stdout.decode('utf-8', errors='replace').strip()
+            if isinstance(proc.stdout, str):
+                out = proc.stdout
+            else:
+                out = proc.stdout.decode('utf-8', errors='replace').strip()
+
             if out:
                 if report!='quiet':
                     debug("%s [out]:\n%s", command, out)
@@ -158,7 +165,11 @@ class CoreTarget:
                     if skip:
                         out = [i for i in out if not skip(i)]
 
-            err = proc.stderr.decode('utf-8', errors='replace').strip()
+            if isinstance(proc.stderr, str):
+                err = proc.stderr
+            else:
+                err = proc.stderr.decode('utf-8', errors='replace').strip()
+
             if err:
                 log("%s [err]:\n%s", command, err)
                 if not raw:

@@ -116,6 +116,10 @@ class Distro:
         return f'{did}_{ver}'
 
     @classmethod
+    def release_code(cls, infos):
+        return infos['DISTRIB_CODENAME'].strip()
+
+    @classmethod
     def release_check(cls, target, infos=None):
         if hasattr(cls, 'release_infos'):
             try:
