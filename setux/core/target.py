@@ -161,7 +161,7 @@ class CoreTarget:
                 if report!='quiet':
                     debug("%s [out]:\n%s", command, out)
                 if not raw:
-                    out = [i.strip() for i in out.split('\n')]
+                    out = [o for i in out.split('\n') if (o := i.strip())]
                     if skip:
                         out = [i for i in out if not skip(i)]
 
@@ -173,7 +173,7 @@ class CoreTarget:
             if err:
                 log("%s [err]:\n%s", command, err)
                 if not raw:
-                    err = [i.strip() for i in err.split('\n')]
+                    err = [e for i in err.split('\n') if (e := i.strip())]
                     if skip:
                         err = [i for i in err if not skip(i)]
 
