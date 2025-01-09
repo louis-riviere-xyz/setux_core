@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pybrary.func import todo
 
 from setux.logger import error, info
@@ -162,8 +164,8 @@ class SystemPackager(_Packager):
 class CommonPackager(_Packager):
     def __init__(self, distro):
         super().__init__(distro)
-        self.cache_dir = '/tmp/setux/cache'
-        self.cache_file = f'{self.cache_dir}/{self.manager}'
+        self.cache_dir = Path('/tmp/setux/cache')
+        self.cache_file = self.cache_dir / str(self.manager)
         self.cache_days = 10
 
     def do_installable(self, pattern=None):
