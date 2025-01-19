@@ -19,6 +19,7 @@ from .distro import Distro
 from .module import Module
 from . import plugins
 import setux.distros
+from setux.core.errors import ExecError
 
 
 # pylint: disable= filter-builtin-not-iterating
@@ -144,6 +145,8 @@ class CoreTarget:
         kw['input'] = input
         kw['text'] = text
 
+        check = kw.pop('check', True)
+
         try:
             log('running "%s" ...', command)
             try:
@@ -179,6 +182,10 @@ class CoreTarget:
 
             ret = proc.returncode
             log('"%s" [ret]: %s', command, ret)
+
+            self.trace(command, ret, out, err, **kw)
+            if check and ret:
+                raise ExecError(command, ret, out, err)
 
             return ret, out, err
 
