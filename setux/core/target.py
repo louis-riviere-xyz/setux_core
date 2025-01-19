@@ -270,7 +270,7 @@ class CoreTarget:
 
     def rsync_check(self):
         if hasattr(self, '_rsync_checked_'): return
-        ret, out, err =  self.run('rsync --version', report='quiet')
+        ret, out, err =  self.run('rsync --version', report='quiet', check=False)
         if ret:
             self.Package.install('rsync')
         self._rsync_checked_ = True

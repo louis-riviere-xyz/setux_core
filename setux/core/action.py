@@ -63,7 +63,7 @@ class Action:
                     red(f'!! {self.label}')
                     return False
                 if ok:
-                    green(f'>> {self.label}')
+                    if verbose: green(f'>> {self.label}')
                     return True
 
             red(f'XX {self.label}')
