@@ -5,7 +5,7 @@ class SetuxError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return f'\n\n    {self.__class__.__name__} ! {self.msg} !\n\n'
+        return f'\n{self.__class__.__name__} ! {self.msg}\n'
 
 
 class MissingModuleError(SetuxError):

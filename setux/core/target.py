@@ -189,6 +189,9 @@ class CoreTarget:
 
             return ret, out, err
 
+        except ExecError:
+            raise
+
         except CalledProcessError as exc:
             if critical:
                 error(
