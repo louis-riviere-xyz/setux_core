@@ -294,7 +294,7 @@ class CoreTarget:
         self.trace('rsync '+' '.join(arg), ret, out, err, **kw)
         return ret==0
 
-    def script(self, content, cmd=None, sudo=None, path=None, name=None, trim=True, remove=True, report='quiet'):
+    def script(self, content, cmd=None, sudo=None, path=None, name=None, trim=True, remove=True, term=False, report='quiet'):
         path = path or '/tmp/setux'
         self.run(f'mkdir -p {path}')
         self.run(f'chmod 777 {path}', sudo='root')
@@ -305,13 +305,12 @@ class CoreTarget:
             content = '\n'.join(line for line in lines if line)+'\n'
         self.write(full, content, report='quiet')
         if cmd:
-            if sudo:
-                cmd = f'sudo -u {sudo} {cmd}'
+            if sudo: cmd = f'sudo -u {sudo} {cmd}'
             self.run(f'chmod 644 {full}', sudo=sudo)
-            ret, out, err = self.run(cmd.format(full))
+            ret, out, err = self.run(cmd.format(full), term=term)
         else:
             self.run(f'chmod +x {full}', sudo=sudo)
-            ret, out, err = self.run(full, sudo=sudo)
+            ret, out, err = self.run(full, sudo=sudo, term=term)
         if remove:
             self.run(f'rm {full}', report='quiet', sudo=sudo)
         return ret, out, err
