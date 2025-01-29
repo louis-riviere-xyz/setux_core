@@ -7,6 +7,7 @@ from subprocess import (
 from functools import partial
 
 from pybrary.func import todo
+from pybrary.ascii import rm_ansi_codes
 
 from setux.logger import debug, info, error
 
@@ -90,26 +91,28 @@ class CoreTarget:
             with open(self.outrun, 'a') as log:
                 log.write(f'{cmd}\n')
 
-            with open(self.outlog, 'a') as log:
-                log.write(f'\n[{ret:^3}] {cmd}\n')
+            with open(self.outlog, 'a') as outlog:
+                def log(msg): outlog.write(msg)
+
+                log(f'\n[{ret:^3}] {cmd}\n')
                 if out:
                     if kw.get('report')=='quiet':
                         if len(out)==1:
-                            log.write(f'[out] {out[0]}\n')
+                            log(f'[out] {out[0]}\n')
                         else:
-                            log.write(f'[out] ... ({len(out)})\n')
+                            log(f'[out] ... ({len(out)})\n')
                     else:
                         if len(out)==1:
                             out = out[0]
                         else:
                             out = '\n'+'\n'.join(out)
-                        log.write(f'[out] {out}\n')
+                        log(f'[out] {out}\n')
                 if err:
                     if len(err)==1:
                         err = err[0]
                     else:
                         err = '\n'+'\n'.join(err)
-                    log.write(f'[err] {err}\n')
+                    log(f'[err] {err}\n')
 
     def __getattr__(self, attr):
         return getattr(self.distro, attr)
@@ -155,6 +158,8 @@ class CoreTarget:
                 kw['shell'] = True
                 proc = run(cmd, stdout=PIPE, stderr=PIPE, **kw)
 
+            ret, command = proc.returncode, rm_ansi_codes(command)
+
             if isinstance(proc.stdout, str):
                 out = proc.stdout
             else:
@@ -162,9 +167,13 @@ class CoreTarget:
 
             if out:
                 if report!='quiet':
-                    debug("%s [out]:\n%s", command, out)
+                    debug("%s [out]:\n%s", command, rm_ansi_codes(out))
                 if not raw:
-                    out = [o for i in out.split('\n') if (o := i.strip())]
+                    out = [
+                        rm_ansi_codes(o)
+                        for i in out.split('\n')
+                        if (o := i.strip())
+                    ]
                     if skip:
                         out = [i for i in out if not skip(i)]
 
@@ -174,13 +183,16 @@ class CoreTarget:
                 err = proc.stderr.decode('utf-8', errors='replace').strip()
 
             if err:
-                log("%s [err]:\n%s", command, err)
+                log("%s [err]:\n%s", command, rm_ansi_codes(err))
                 if not raw:
-                    err = [e for i in err.split('\n') if (e := i.strip())]
+                    err = [
+                        rm_ansi_codes(e)
+                        for i in err.split('\n')
+                        if (e := i.strip())
+                    ]
                     if skip:
                         err = [i for i in err if not skip(i)]
 
-            ret = proc.returncode
             log('"%s" [ret]: %s', command, ret)
 
             self.trace(command, ret, out, err, **kw)
@@ -294,7 +306,7 @@ class CoreTarget:
         self.trace('rsync '+' '.join(arg), ret, out, err, **kw)
         return ret==0
 
-    def script(self, content, cmd=None, sudo=None, path=None, name=None, trim=True, remove=True, term=False, report='quiet'):
+    def script(self, content, cmd=None, sudo=None, path=None, name=None, trim=True, remove=True, term=True, report='quiet'):
         path = path or '/tmp/setux'
         self.run(f'mkdir -p {path}')
         self.run(f'chmod 777 {path}', sudo='root')
