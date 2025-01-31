@@ -312,6 +312,7 @@ class CoreTarget:
         self.run(f'chmod 777 {path}', sudo='root')
         name = name or 'script'
         full = '/'.join((path, name))
+        content = self.config.script_header + content
         if trim:
             lines = (line.strip() for line in content.split('\n'))
             content = '\n'.join(line for line in lines if line)+'\n'
