@@ -144,6 +144,7 @@ class CoreTarget:
         command = ' '.join(cmd)
         if kw.get('shell'):
             cmd = command
+            kw['executable'] = '/bin/bash'
 
         kw['input'] = input
         kw['text'] = text
@@ -156,6 +157,7 @@ class CoreTarget:
                 proc = run(cmd, stdout=PIPE, stderr=PIPE, **kw)
             except OSError:
                 kw['shell'] = True
+                kw['executable'] = '/bin/bash'
                 proc = run(cmd, stdout=PIPE, stderr=PIPE, **kw)
 
             ret, command = proc.returncode, rm_ansi_codes(command)
@@ -306,13 +308,25 @@ class CoreTarget:
         self.trace('rsync '+' '.join(arg), ret, out, err, **kw)
         return ret==0
 
-    def script(self, content, cmd=None, sudo=None, path=None, name=None, trim=True, remove=True, term=True, report='quiet'):
+    def script(self,
+        content,
+        cmd    = None,
+        sudo   = None,
+        path   = None,
+        name   = None,
+        trim   = True,
+        remove = True,
+        term   = True,
+        header = True,
+        report = 'quiet',
+    ):
         path = path or '/tmp/setux'
         self.run(f'mkdir -p {path}')
         self.run(f'chmod 777 {path}', sudo='root')
         name = name or 'script'
         full = '/'.join((path, name))
-        content = self.config.script_header + content
+        if header:
+            content = self.config.script_header + content
         if trim:
             lines = (line.strip() for line in content.split('\n'))
             content = '\n'.join(line for line in lines if line)+'\n'
