@@ -318,6 +318,7 @@ class CoreTarget:
         remove = True,
         term   = True,
         header = True,
+        xtrace = False,
         report = 'quiet',
     ):
         path = path or '/tmp/setux'
@@ -326,7 +327,10 @@ class CoreTarget:
         name = name or 'script'
         full = '/'.join((path, name))
         if header:
-            content = self.config.script_header + content
+            header = self.config.script_header
+            if xtrace:
+                header += 'set -o xtrace\n'
+            content = header + content
         if trim:
             lines = (line.strip() for line in content.split('\n'))
             content = '\n'.join(line for line in lines if line)+'\n'
