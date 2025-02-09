@@ -9,7 +9,7 @@ from functools import partial
 from pybrary.func import todo
 from pybrary.ascii import rm_ansi_codes
 
-from setux.logger import debug, info, error
+from setux.logger import debug, info, error, yellow
 
 from .errors import (
     MissingModuleError,
@@ -263,16 +263,15 @@ class CoreTarget:
             raise ModuleTypeError(cls)
 
         report = kw.pop('report', 'normal') != 'quiet'
-        ret = cls(self.distro).deploy(self, **kw)
         if report:
-            name = kw.pop('name', None)
+            name = kw.pop('name', module)
             params = ', '.join(f'{k}={v}' for k, v in kw.items()) if kw else ''
             params = f' {params}' if params else ''
-            status = '.' if ret else 'X'
-            if name:
-                info(f'\t{name}{params} {status}')
-            else:
-                info(f'\t{module}{params} {status}')
+            with yellow(f'{name}{params}'):
+                ret = cls(self.distro).deploy(self, **kw)
+                assert ret
+        else:
+            ret = cls(self.distro).deploy(self, **kw)
         return ret
 
     def register(self, module, name):

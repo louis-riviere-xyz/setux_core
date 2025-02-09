@@ -58,6 +58,7 @@ class Deploy:
     y = "\x1b[33;1m"
     r = "\x1b[31;1m"
     z = "\x1b[0m"
+    status = list()
 
     def __init__(self, logger, setux):
         self.setux = setux
@@ -65,8 +66,7 @@ class Deploy:
         self.tab = 0
 
     def info(self, col, msg):
-        self.setux.info(msg)
-        msg = f'{" "*4*self.tab}{col}{msg[3:]}{self.z}'
+        msg = f'{" "*4*self.tab}{col}{msg}{self.z}'
         self.logger.info(msg)
 
     def green(self, msg):
@@ -74,17 +74,30 @@ class Deploy:
 
     @contextmanager
     def yellow(self, msg):
+        self.status.append(True)
         self.info(self.y, msg)
-        self.tab+=1
-        yield
-        self.tab-=1
+        try:
+            self.tab += 1
+            yield
+        except Exception as x:
+            self.tab -= 1
+            self.status.pop()
+            self.status = [False for _ in self.status]
+            self.setux.error(f'{x}')
+            self.red(msg)
+            raise
+        else:
+            self.tab -= 1
+            status = self.status.pop()
+            if status:
+                self.green(msg)
+            else:
+                self.red(msg)
 
     @contextmanager
     def silent(self, msg):
         self.logger.debug(msg)
-        self.tab+=1
         yield
-        self.tab-=1
 
     def red(self, msg):
         self.info(self.r, msg)

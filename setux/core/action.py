@@ -41,33 +41,16 @@ class Action:
                 ok = self.check()
             except Exception as x:
                 error(x)
-                red(f'!! {self.label}')
+                red(self.label)
                 return False
             if ok:
-                if verbose: green(f'== {self.label}')
+                if verbose: green(self.label)
                 return True
 
-            with self.labeler(f'<> {self.label}'):
-                try:
-                    ok = self.deploy()
-                except Exception as x:
-                    error(x)
-                    red(f'!! {self.label}')
-                    return False
+            with self.labeler(self.label):
+                ok = self.deploy() and self.check()
 
-            if ok:
-                try:
-                    ok = self.check()
-                except Exception as x:
-                    error(x)
-                    red(f'!! {self.label}')
-                    return False
-                if ok:
-                    if verbose: green(f'>> {self.label}')
-                    return True
-
-            red(f'XX {self.label}')
-            return False
+            return ok
 
     def __call__(self, verbose=True):
         with self:
@@ -87,18 +70,12 @@ class Action:
 class Runner(Action):
     def _call_(self, verbose):
         with logger.quiet():
-            with self.labeler(f'<> {self.label}'):
+            with self.labeler(self.label):
                 try:
                     ok = self.deploy()
                 except Exception as x:
-                    error(x)
                     ok = False
-            if ok:
-                if verbose: green(f'.. {self.label}')
-                return True
-            else:
-                if verbose: red(f'!! {self.label}')
-                return False
+            return ok
 
 
 class Actions(Action):
@@ -138,15 +115,11 @@ class Actions(Action):
 
     def deploy_action(self, action):
         err = None
-        with yellow(f'<> {action.label}'):
+        with yellow(action.label):
             try:
                 ok = action.deploy()
             except Exception as x:
-                err = str(x)
-                error(err)
                 ok =  False
-        if err:
-            red(f'!! {action.label}')
         return ok
 
     def check(self):
@@ -175,7 +148,7 @@ class Actions(Action):
 
     def _call_(self, verbose):
         with logger.quiet():
-            with yellow(f'<> {self.label}'):
+            with yellow(self.label):
                 all_ok = True
                 for dpl in self.actions:
                     action = self.get_action(dpl)
@@ -184,19 +157,11 @@ class Actions(Action):
                     else:
                         ok = self.check_action(action)
                         if ok:
-                            green(f'== {action.label}')
+                            green(action.label)
                         else:
                             ok = self.deploy_action(action)
                             if ok:
                                 ok = self.check_action(action)
-                                if ok:
-                                    green(f'>> {action.label}')
-                                else:
-                                    red(f'XX {action.label}')
-                    all_ok = all_ok and ok
-            if all_ok:
-                green(f'.. {self.label}')
-                return True
-            else:
-                red(f'!! {self.label}')
-                return False
+                    if not ok:
+                        all_ok = False
+            return all_ok
