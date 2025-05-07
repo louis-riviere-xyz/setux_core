@@ -16,27 +16,46 @@ import setux.core
 def get_modules(ns):
     debug(f'{ns.__name__}')
     path, name = ns.__path__, ns.__name__ + '.'
+    print(11111, path, name)
     try:
         fil = None
         if hasattr(path, '_path'):                   # namespace
+            print(11112)
             found = list()
             for pth in path._path:
+                print(11113, pth)
                 debug(f'    {pth}')
                 for fil in find(pth, r'\.py$'):
                     if fil.name=='__init__.py':
                         error(f' ! __init__ in ns {pth}')
                         return
                     nam = name+fil.stem
-                    mod = load(nam, fil)
+                    print(111170, nam, fil)
+                    try:
+                        mod = load(nam, fil)
+                    except Exception as x:
+                        print(111177, x)
+                        raise
                     found.append((nam, mod))
+                print(1111333, pth)
+            print(11114, len(found))
             return found
         else:                                        # package
+            print(11120)
             return [
                 (name, import_module(name))
                 for finder, name, _ispkg in iter_modules(path, name)
             ]
     except Exception as x:
+        print(11130, x)
+        # from pudb import set_trace; set_trace()
         error(f'\n ! {fil or name}\n ! {x}\n')
+
+    # __to__wip__:
+    print(11140)
+    debug(f'{ns.__name__} !')
+    # from pudb import set_trace; set_trace()
+    print()
 
 
 def get_raw_plugins(ns, cls):
@@ -78,10 +97,12 @@ class Plugins:
         '''
 
     def collect(self):
+        print(555000, self.ns, self.Base)
         plugins = get_plugins(self.ns, self.Base)
         for mod, plg, plugin in plugins:
             key, val = self.parse(mod, plg, plugin)
             if key and val:
+                print(555001, key, val)
                 self.items[key] = val
         self.sort()
         for mod in self:

@@ -13,8 +13,8 @@ from .manage import Manager
 
 
 class Service(Manager):
-    def __init__(self, distro):
-        super().__init__(distro)
+    def __init__(self, *a, **k):
+        super().__init__(*a, **k)
         self.svcmap = distro.svcmap
 
     def status(self, name):

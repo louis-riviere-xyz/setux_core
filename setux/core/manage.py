@@ -10,11 +10,13 @@ from .action import Action
 
 
 class Manager:
+    defaults = dict()
+
     def __init__(self, distro, sudo=None, quiet=False):
         self.distro = distro
         self.target = distro.target
         self.key = None
-        self.sudo = None
+        self.sudo = sudo or self.defaults.get('sudo')
         self.quiet = quiet
         self.context = dict()
 
