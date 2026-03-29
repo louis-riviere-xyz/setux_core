@@ -12,9 +12,9 @@ description = 'System deployment'
 authors = [
     {name = 'Louis RIVIERE', email = 'louis@riviere.xyz'},
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dependencies = [
-    'pybrary>=0.2507.1',
+    'pybrary>=0.2542.0',
 ]
 keywords = [
     'utility',
