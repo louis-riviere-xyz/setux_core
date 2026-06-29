@@ -22,7 +22,7 @@ def get_modules(ns):
             found = list()
             for pth in path._path:
                 debug(f'    {pth}')
-                for fil in find(pth, r'\.py$'):
+                for fil in find(r'\.py$', pth):
                     if fil.name=='__init__.py':
                         error(f' ! __init__ in ns {pth}')
                         return
